@@ -33,8 +33,8 @@ public interface Drive extends Settings {
 		gearShifter = new DualActionSolenoidModule(GEAR_SHIFTER_SOLENOID_1, GEAR_SHIFTER_SOLENOID_2);
 	
 	DualActionSolenoid.Direction
-		LOW_GEAR = Direction.LEFT,
-		HIGH_GEAR = Direction.RIGHT;
+		LOW_GEAR = Direction.RIGHT,
+		HIGH_GEAR = Direction.LEFT;
 	
 	/**
 	 * Function used in driving controls that squares the input of the joysticks on the controller. 

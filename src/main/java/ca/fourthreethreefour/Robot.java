@@ -136,7 +136,6 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 	@Override
 	public void initAutonomous() {
 		AUTO_MODULES.enable();
-		gearShifter.set(LOW_GEAR);
 		drivetrain.setSafetyEnabled(false); // WE DON'T NEED SAFETY
 		Commands.run(commandAuto);
 	}
@@ -156,7 +155,6 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 	public void initTeleoperated() {
 		TELEOP_MODULES.enable();
 		drivetrain.setSafetyEnabled(true); // Maybe we do...
-		gearShifter.set(LOW_GEAR);
 	}
 
 	// Runs every (approx.) 20ms in teleop
