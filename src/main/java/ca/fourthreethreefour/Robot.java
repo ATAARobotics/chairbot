@@ -74,9 +74,6 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 			public void doBind(double speed, double turn) {
 				turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
 				drivetrain.arcadeDrive(speed, turn);
-				if(Math.abs(speed) < LOW_GEAR_THRESHOLD) {
-					gearShifter.set(LOW_GEAR);
-				}
 			}
 		});
 

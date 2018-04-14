@@ -43,8 +43,6 @@ public interface Settings {
 	int GEAR_SHIFTER_SOLENOID_1 = settingsFile.getIntProperty("GEAR_SHIFTER_SOLENOID_1", 0);
 	int GEAR_SHIFTER_SOLENOID_2 = settingsFile.getIntProperty("GEAR_SHIFTER_SOLENOID_2", 1);
 
-	double LOW_GEAR_THRESHOLD = settingsFile.getDoubleProperty("LOW_GEAR_THRESHOLD", 0.1);
-
 	int SPEED_CONTROLLER_1 = settingsFile.getIntProperty("SPEED_CONTROLLER_1", 7);
 	int SPEED_CONTROLLER_2 = settingsFile.getIntProperty("SPEED_CONTROLLER_2", 4);
 	int SPEED_CONTROLLER_3 = settingsFile.getIntProperty("SPEED_CONTROLLER_3", 6);
