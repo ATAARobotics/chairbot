@@ -1,7 +1,5 @@
-# Robot Code 2018 #
+# chairbot
 
-This is the robot code for the FRC 2018 game, Power Up.
+Code for a drivetrain with a chair bolted to it.
 
-## Purpose ##
-
-this thingy makes us win
+Based off of 2018 code
