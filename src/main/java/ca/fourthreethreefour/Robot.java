@@ -6,6 +6,7 @@ import java.io.IOException;
 import edu.first.command.Command;
 import edu.first.command.Commands;
 import edu.first.module.Module;
+import edu.first.module.actuators.DualActionSolenoid.Direction;
 import edu.first.module.joysticks.BindingJoystick.DualAxisBind;
 import edu.first.module.joysticks.XboxController;
 import edu.first.module.subsystems.Subsystem;
@@ -155,6 +156,9 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 	public void initTeleoperated() {
 		TELEOP_MODULES.enable();
 		drivetrain.setSafetyEnabled(true); // Maybe we do...
+		if (gearShifter.get() == Direction.OFF) {
+			gearShifter.set(LOW_GEAR);
+		}
 	}
 
 	// Runs every (approx.) 20ms in teleop
