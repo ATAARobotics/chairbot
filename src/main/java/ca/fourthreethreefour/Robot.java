@@ -69,7 +69,7 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 			@Override
 			public void doBind(double speed, double turn) {
 				turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
-				drivetrain.arcadeDrive(speed, turn);
+				drivetrain.arcadeDrive(speed * DRIVE_SPEED, turn);
 			}
 		});
 

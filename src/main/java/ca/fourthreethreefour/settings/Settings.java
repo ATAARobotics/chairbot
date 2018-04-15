@@ -31,6 +31,8 @@ public interface Settings {
     boolean LOGGING_ENABLED = settingsFile.getBooleanProperty("LOGGING_ENABLED", false);
 	
     double TURN_CURVE = settingsFile.getDoubleProperty("TURN_CURVE", 1.5);
+    
+    double DRIVE_SPEED = settingsFile.getDoubleProperty("DRIVE_SPEED", 0.5);
 
     // Ports
 	// TODO get default ports
