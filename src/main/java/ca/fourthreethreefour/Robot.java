@@ -11,7 +11,6 @@ import edu.first.module.joysticks.BindingJoystick.DualAxisBind;
 import edu.first.module.joysticks.XboxController;
 import edu.first.module.subsystems.Subsystem;
 import edu.first.robot.IterativeRobotAdapter;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import main.java.ca.fourthreethreefour.commands.ReverseSolenoid;
@@ -38,7 +37,7 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 
 	/*
 	 * Constructor for the custom Robot class. Needed because IterativeRobotAdapter
-	 * requires a string for some reason. TODO Name the robot!
+	 * requires a string for some reason.
 	 */
 	public Robot() {
 		super("CHAIR_BOT");
@@ -51,9 +50,6 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 	public void init() {
 		// Initializes all modules
 		ALL_MODULES.init();
-
-		// Initializes the CameraServer twice. That's how it's done
-        CameraServer.getInstance().startAutomaticCapture();
         
 		// Controller 1/driver
 		/*
@@ -136,10 +132,6 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 		AUTO_MODULES.enable();
 		drivetrain.setSafetyEnabled(false); // WE DON'T NEED SAFETY
 		Commands.run(commandAuto);
-	}
-
-	@Override
-	public void periodicAutonomous() {
 	}
 	
 	// Runs at the end of autonomous
