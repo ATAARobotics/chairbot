@@ -7,7 +7,7 @@ import edu.first.command.Command;
 import edu.first.command.Commands;
 import edu.first.module.Module;
 import edu.first.module.actuators.DualActionSolenoid.Direction;
-import edu.first.module.joysticks.BindingJoystick.DualAxisBind;
+import edu.first.module.joysticks.BindingJoystick.TripleAxisBind;
 import edu.first.module.joysticks.XboxController;
 import edu.first.module.subsystems.Subsystem;
 import edu.first.robot.IterativeRobotAdapter;
@@ -57,19 +57,30 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 		 * either of those axes does not exceed the deadband, the value will be set to
 		 * zero.
 		 */
-		controller.addDeadband(XboxController.LEFT_FROM_MIDDLE, 0.12);
-		controller.changeAxis(XboxController.LEFT_FROM_MIDDLE, speedFunction);
+		//controller.addDeadband(XboxController.LEFT_FROM_MIDDLE, 0.12);
+		//controller.changeAxis(XboxController.LEFT_FROM_MIDDLE, speedFunction);
 		controller.addDeadband(XboxController.RIGHT_X, 0.12);
 		controller.invertAxis(XboxController.RIGHT_X);
 		controller.changeAxis(XboxController.RIGHT_X, turnFunction);
-		controller.addDeadband(XboxController.TRIGGERS, 0.15);
+		controller.addDeadband(XboxController.RIGHT_TRIGGER, 0.15);
+		controller.addDeadband(XboxController.LEFT_TRIGGER, 0.15);
 
-		// Creates an axis bind for the left and right sticks
+		/*// Creates an axis bind for the left and right sticks
 		controller.addAxisBind(new DualAxisBind(controller.getLeftDistanceFromMiddle(), controller.getRightX()) {
 			@Override
 			public void doBind(double speed, double turn) {
 				turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
-				drivetrain.arcadeDrive(speed * DRIVE_SPEED, turn);
+				drivetrain.arcadeDrive(speed, turn);
+			}
+		});*/
+		
+		controller.addAxisBind(new TripleAxisBind(controller.getRightTrigger(), controller.getLeftTrigger(), controller.getRightX()) {
+			
+			@Override
+			public void doBind(double rightTrigger, double leftTrigger, double turn) {
+				double speed = rightTrigger - leftTrigger;
+				turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
+				drivetrain.arcadeDrive(speed * DRIVE_SPEED, turn, true);
 			}
 		});
 
