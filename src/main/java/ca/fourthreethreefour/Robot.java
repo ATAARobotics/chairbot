@@ -62,8 +62,8 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 		controller.addDeadband(XboxController.RIGHT_X, 0.12);
 		controller.invertAxis(XboxController.RIGHT_X);
 		controller.changeAxis(XboxController.RIGHT_X, turnFunction);
-		controller.addDeadband(XboxController.RIGHT_TRIGGER, 0.15);
-		controller.addDeadband(XboxController.LEFT_TRIGGER, 0.15);
+		controller.addDeadband(XboxController.RIGHT_TRIGGER, 0.8);
+		controller.addDeadband(XboxController.LEFT_TRIGGER, 0.8);
 
 		/*// Creates an axis bind for the left and right sticks
 		controller.addAxisBind(new DualAxisBind(controller.getLeftDistanceFromMiddle(), controller.getRightX()) {
