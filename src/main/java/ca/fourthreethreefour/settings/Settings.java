@@ -39,8 +39,10 @@ public interface Settings {
 	// int EXAMPLE_PORT = settingsFile.getIntProperty("EXAMPLE_PORT", [default port])
 	int DRIVE_LEFT_1 = settingsFile.getIntProperty("DRIVE_LEFT_1", 0);
 	int DRIVE_LEFT_2 = settingsFile.getIntProperty("DRIVE_LEFT_2", 1);
-	int DRIVE_RIGHT_1 = settingsFile.getIntProperty("DRIVE_RIGHT_1", 2);
-	int DRIVE_RIGHT_2 = settingsFile.getIntProperty("DRIVE_RIGHT_2", 3);
+	int DRIVE_LEFT_3 = settingsFile.getIntProperty("DRIVE_LEFT_2", 2);
+	int DRIVE_RIGHT_1 = settingsFile.getIntProperty("DRIVE_RIGHT_1", 3);
+	int DRIVE_RIGHT_2 = settingsFile.getIntProperty("DRIVE_RIGHT_2", 4);
+	int DRIVE_RIGHT_3 = settingsFile.getIntProperty("DRIVE_RIGHT_2", 5);
 
 	int GEAR_SHIFTER_SOLENOID_1 = settingsFile.getIntProperty("GEAR_SHIFTER_SOLENOID_1", 0);
 	int GEAR_SHIFTER_SOLENOID_2 = settingsFile.getIntProperty("GEAR_SHIFTER_SOLENOID_2", 1);
@@ -52,8 +54,10 @@ public interface Settings {
 	
 	MotorModule.Type TYPE_DRIVE_LEFT_1 = toType(settingsFile.getProperty("TYPE_DRIVE_LEFT_1", "talonsrx"));
 	MotorModule.Type TYPE_DRIVE_LEFT_2 = toType(settingsFile.getProperty("TYPE_DRIVE_LEFT_2", "talonsrx"));
+	MotorModule.Type TYPE_DRIVE_LEFT_3 = toType(settingsFile.getProperty("TYPE_DRIVE_LEFT_3", "talonsrx"));
 	MotorModule.Type TYPE_DRIVE_RIGHT_1 = toType(settingsFile.getProperty("TYPE_DRIVE_RIGHT_1", "talonsrx"));
 	MotorModule.Type TYPE_DRIVE_RIGHT_2 = toType(settingsFile.getProperty("TYPE_DRIVE_RIGHT_2", "talonsrx"));
+	MotorModule.Type TYPE_DRIVE_RIGHT_3 = toType(settingsFile.getProperty("TYPE_DRIVE_RIGHT_3", "talonsrx"));
 
 	MotorModule.Type TYPE_SPEED_CONTROLLER_1 = toType(settingsFile.getProperty("TYPE_SPEED_CONTROLLER_1", "talonsrx"));
 	MotorModule.Type TYPE_SPEED_CONTROLLER_2 = toType(settingsFile.getProperty("TYPE_SPEED_CONTROLLER_2", "talonsrx"));

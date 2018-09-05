@@ -18,12 +18,14 @@ public interface Drive extends Settings {
 	MotorModule // Creates modules on these ports. Ports are determined in settings.txt on the RoboRIO,
 		left1 = new MotorModule(TYPE_DRIVE_LEFT_1, DRIVE_LEFT_1), // or the default ports in Settings.java.
 		left2 = new MotorModule(TYPE_DRIVE_LEFT_2, DRIVE_LEFT_2),
+		left3 = new MotorModule(TYPE_DRIVE_LEFT_3, DRIVE_LEFT_3),
 		right1 = new MotorModule(TYPE_DRIVE_RIGHT_1, DRIVE_RIGHT_1),
-		right2 = new MotorModule(TYPE_DRIVE_RIGHT_2, DRIVE_RIGHT_2);
+		right2 = new MotorModule(TYPE_DRIVE_RIGHT_2, DRIVE_RIGHT_2),
+		right3 = new MotorModule(TYPE_DRIVE_RIGHT_3, DRIVE_RIGHT_3);
 	
 	SpeedControllerGroup // Groups Modules together so they can be used as one speed controller.
-		left = new SpeedControllerGroup(new SpeedController[] { left1, left2 }),
-		right = new SpeedControllerGroup(new SpeedController[] { right1, right2 });
+		left = new SpeedControllerGroup(new SpeedController[] { left1, left2, left3 }),
+		right = new SpeedControllerGroup(new SpeedController[] { right1, right2, right3 });
 
 	// Drivetrain object using the TalonSRX groups left and right. One side is reversed so they move in the same direction.
 	Drivetrain 
