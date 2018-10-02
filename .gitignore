@@ -152,7 +152,7 @@ gradle-app.setting
 
 # # VS Code Specific Java Settings
 .classpath
-.project
+
 .settings/
 bin/
 
