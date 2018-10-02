@@ -1,9 +1,9 @@
-package main.java.ca.fourthreethreefour.subsystems;
+package ca.fourthreethreefour.subsystems;
 
 import edu.first.module.Module;
 import edu.first.module.subsystems.Subsystem;
 import edu.first.module.actuators.MotorModule;
-import main.java.ca.fourthreethreefour.settings.Settings;
+import ca.fourthreethreefour.settings.Settings;
 
 public interface SpeedControllers extends Settings {
 	

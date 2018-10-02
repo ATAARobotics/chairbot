@@ -1,4 +1,4 @@
-package main.java.ca.fourthreethreefour.subsystems;
+package ca.fourthreethreefour.subsystems;
 
 public class Lights {
 

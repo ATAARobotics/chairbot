@@ -1,4 +1,4 @@
-package main.java.ca.fourthreethreefour.subsystems;
+package ca.fourthreethreefour.subsystems;
 
 import edu.first.identifiers.Function;
 import edu.first.identifiers.InversedSpeedController;
@@ -11,7 +11,7 @@ import edu.first.module.actuators.SpeedController;
 import edu.first.module.actuators.SpeedControllerGroup;
 import edu.first.module.subsystems.Subsystem;
 import edu.first.module.actuators.MotorModule;
-import main.java.ca.fourthreethreefour.settings.Settings;
+import ca.fourthreethreefour.settings.Settings;
 
 public interface Drive extends Settings {
 	

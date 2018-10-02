@@ -1,6 +1,6 @@
-package main.java.ca.fourthreethreefour.commands.debug;
+package ca.fourthreethreefour.commands.debug;
 
-import main.java.ca.fourthreethreefour.settings.Settings;
+import ca.fourthreethreefour.settings.Settings;
 
 public class Logging implements Settings {
 

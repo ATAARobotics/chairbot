@@ -1,4 +1,4 @@
-package main.java.ca.fourthreethreefour;
+package ca.fourthreethreefour;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import edu.first.robot.IterativeRobotAdapter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import main.java.ca.fourthreethreefour.commands.ReverseSolenoid;
-import main.java.ca.fourthreethreefour.settings.AutoFile;
+import ca.fourthreethreefour.commands.ReverseSolenoid;
+import ca.fourthreethreefour.settings.AutoFile;
 
 
 public class Robot extends IterativeRobotAdapter implements Constants {

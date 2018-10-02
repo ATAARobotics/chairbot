@@ -1,6 +1,6 @@
-package main.java.ca.fourthreethreefour.subsystems;
+package ca.fourthreethreefour.subsystems;
 
-import main.java.ca.fourthreethreefour.settings.Settings;
+import ca.fourthreethreefour.settings.Settings;
 import edu.first.module.Module;
 import edu.first.module.joysticks.XboxController;
 import edu.first.module.subsystems.Subsystem;
