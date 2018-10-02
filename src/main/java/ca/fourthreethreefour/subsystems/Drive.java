@@ -10,7 +10,7 @@ import edu.first.module.actuators.DualActionSolenoidModule;
 import edu.first.module.actuators.SpeedController;
 import edu.first.module.actuators.SpeedControllerGroup;
 import edu.first.module.subsystems.Subsystem;
-import main.java.ca.fourthreethreefour.module.actuators.MotorModule;
+import edu.first.module.actuators.MotorModule;
 import main.java.ca.fourthreethreefour.settings.Settings;
 
 public interface Drive extends Settings {

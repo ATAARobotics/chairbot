@@ -2,8 +2,8 @@ package main.java.ca.fourthreethreefour.settings;
 
 import java.io.File;
 
-import main.java.ca.fourthreethreefour.module.actuators.MotorModule;
-import main.java.ca.fourthreethreefour.module.actuators.MotorModule.Type;
+import edu.first.module.actuators.MotorModule;
+import edu.first.module.actuators.MotorModule.Type;
 
 /**
  * Contains all values {@link SettingsFile} can parse, as well as their keys and default values.
