@@ -39,10 +39,10 @@ public class JoyConLeftController extends BindingJoystick {
     /**
      * Port for button.
      */
-	public static final int LEFT = 0, DOWN = 1, UP = 2, RIGHT = 3, 
-			LEFT_BUMPER = 4, RIGHT_BUMPER = 5, MINUS = 8, STICK = 10, 
-            CAPTURE = 13, BUMPER = 14, TRIGGER = 15, 
-            STICK_UP = 16, STICK_DOWN = 17, STICK_LEFT = 18, STICK_RIGHT = 19;
+	public static final int LEFT = 1, DOWN = 2, UP = 3, RIGHT = 4, 
+			LEFT_BUMPER = 5, RIGHT_BUMPER = 6, MINUS = 9, STICK = 11, 
+            CAPTURE = 14, BUMPER = 15, TRIGGER = 16, 
+            STICK_UP = 17, STICK_DOWN = 18, STICK_LEFT = 19, STICK_RIGHT = 20;
 
 	protected JoyConLeftController(Joystick joystick) {
         super(joystick);

@@ -2,7 +2,7 @@ package ca.fourthreethreefour.subsystems;
 
 import edu.first.module.Module;
 import edu.first.module.subsystems.Subsystem;
-import edu.first.module.actuators.MotorModule;
+import ca.fourthreethreefour.module.actuators.MotorModule;
 import ca.fourthreethreefour.settings.Settings;
 
 public interface SpeedControllers extends Settings {
