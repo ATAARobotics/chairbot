@@ -8,13 +8,14 @@ import edu.first.command.Commands;
 import edu.first.module.Module;
 import edu.first.module.actuators.DualActionSolenoid.Direction;
 import edu.first.module.joysticks.BindingJoystick.TripleAxisBind;
-import edu.first.module.joysticks.XboxController;
 import edu.first.module.subsystems.Subsystem;
 import edu.first.robot.IterativeRobotAdapter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import ca.fourthreethreefour.commands.ReverseSolenoid;
+import ca.fourthreethreefour.commands.debug.Logging;
+import ca.fourthreethreefour.module.joysticks.JoystickController;
 import ca.fourthreethreefour.settings.AutoFile;
 
 
@@ -62,11 +63,18 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 		 */
 		//controller.addDeadband(XboxController.LEFT_FROM_MIDDLE, 0.12);
 		//controller.changeAxis(XboxController.LEFT_FROM_MIDDLE, speedFunction);
-		controller.addDeadband(XboxController.RIGHT_X, 0.12);
-		controller.invertAxis(XboxController.RIGHT_X);
-		controller.changeAxis(XboxController.RIGHT_X, turnFunction);
-		controller.addDeadband(XboxController.RIGHT_TRIGGER, 0.08);
-		controller.addDeadband(XboxController.LEFT_TRIGGER, 0.08);
+		//controller.addDeadband(XboxController.RIGHT_X, 0.12);
+		//controller.invertAxis(XboxController.RIGHT_X);
+		//controller.changeAxis(XboxController.RIGHT_X, turnFunction);
+		//controller.addDeadband(XboxController.RIGHT_TRIGGER, 0.08);
+		//controller.addDeadband(XboxController.LEFT_TRIGGER, 0.08);
+
+		controller.addDeadband(JoystickController.X_AXIS, 0.12);
+		controller.changeAxis(JoystickController.X_AXIS, turnFunction);
+		controller.changeAxis(JoystickController.Y_AXIS, speedFunction);
+		controller.addDeadband(JoystickController.Y_AXIS, 0.12);
+		//controller.invertAxis(JoystickController.Y_AXIS);
+		controller.invertAxis(JoystickController.X_AXIS);
 
 		/*// Creates an axis bind for the left and right sticks
 		controller.addAxisBind(new DualAxisBind(controller.getLeftDistanceFromMiddle(), controller.getRightX()) {
@@ -77,20 +85,20 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 			}
 		});*/
 		
-		controller.addAxisBind(new TripleAxisBind(controller.getRightTrigger(), controller.getLeftTrigger(), controller.getRightX()) {
+		controller.addAxisBind(new TripleAxisBind(controller.getYAxis(), controller.getXAxis(), controller.getZAxis()) {
 			
 			@Override
-			public void doBind(double rightTrigger, double leftTrigger, double turn) {
-				double speed = rightTrigger - leftTrigger;
+			public void doBind(double speed, double turn, double speedModifierRaw) {
+				double speedModifier = (speedModifierRaw + 1)/2;
 				turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
-				drivetrain.arcadeDrive(speed * DRIVE_SPEED, turn * TURN_SPEED, true);
+				drivetrain.arcadeDrive(speed * DRIVE_SPEED * speedModifier, turn * TURN_SPEED * speedModifier, false);
 			}
 		});
 
 		// When right stick is pressed, reverses gearShifter, changing the gear.
-		controller.addWhenPressed(XboxController.RIGHT_STICK, new ReverseSolenoid(gearShifter));
+		controller.addWhenPressed(JoystickController.STICK_UP, new ReverseSolenoid(gearShifter));
 		
-		controller.addWhilePressed(XboxController.A, new Runnable() {
+		controller.addWhilePressed(JoystickController.RIGHT_DOWN, new Runnable() {
 			@Override
 			public void run() {
 				speedController1.set(0.5);
@@ -100,7 +108,7 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 			}
 		});
 		
-		controller.addWhilePressed(XboxController.B, new Runnable() {
+		controller.addWhilePressed(JoystickController.RIGHT_UP, new Runnable() {
 			@Override
 			public void run() {
 				speedController1.set(-0.5);
@@ -119,6 +127,7 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 
 	@Override
 	public void periodicDisabled() {
+
 		try {
 			settingsFile.reload();
 		} catch (NullPointerException e) {
@@ -136,7 +145,7 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 			} catch (IOException e) {
 				throw new Error(e.getMessage());
 			}
-
+		
 		Timer.delay(0.25);
 	}
 
@@ -169,7 +178,10 @@ public class Robot extends IterativeRobotAdapter implements Constants {
 	public void periodicTeleoperated() {
 		// Performs the binds set in init()
 		controller.doBinds();
-    }
+
+		Logging.logf("Speed Modifier: %.2f", controller.getZAxisValue());
+    
+	}
 
 	// Runs at the end of teleop
 	@Override
