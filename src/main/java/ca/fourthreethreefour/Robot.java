@@ -21,9 +21,9 @@ public class Robot extends TimedRobot implements Constants
     private XboxController primaryController = new XboxController(0);
 
     // Initialize the drivetrain motors
-    private WPI_TalonSRX leftDriveMotor1;
+    private WPI_TalonSRX gearMotor;
     private WPI_TalonSRX leftDriveMotor2;
-    private WPI_TalonSRX rightDriveMotor1;
+    //private WPI_TalonSRX rightDriveMotor1;
     private WPI_TalonSRX rightDriveMotor2;
 
     // Pairs up the drivetrain motors based on their respective side and initializes the drivetrain controlling object
@@ -35,22 +35,24 @@ public class Robot extends TimedRobot implements Constants
     public void robotInit()
     {
         // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
-        leftDriveMotor1 = new WPI_TalonSRX(0);
+        gearMotor = new WPI_TalonSRX(2);
         leftDriveMotor2 = new WPI_TalonSRX(1);
-        rightDriveMotor1 = new WPI_TalonSRX(2);
+        //rightDriveMotor1 = new WPI_TalonSRX(2);
         rightDriveMotor2 = new WPI_TalonSRX(3);
 
         // Assigns the drivetrain motors to their respective motor controller group and then passes them on to the drivetrain controller object
-        leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor1, leftDriveMotor2);
-        rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor1, rightDriveMotor2);
+        leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor2);
+        rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor2);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
 
         // Sets the appropriate configuration settings for the motors
-        leftSideDriveMotors.setInverted(false);
-        rightSideDriveMotors.setInverted(false);
+        leftSideDriveMotors.setInverted(true);
+
+        rightSideDriveMotors.setInverted(true);
         robotDrive.setSafetyEnabled(true);
         robotDrive.setExpiration(0.1);
         robotDrive.setMaxOutput(0.80);
+        gearMotor.setSafetyEnabled(true);
     }
 
     @Override
@@ -58,6 +60,7 @@ public class Robot extends TimedRobot implements Constants
     {
         // Enables motor safety for the drivetrain for teleop
         robotDrive.setSafetyEnabled(true);
+        //gearMotor.setSafetyEnabled(true);
     }
 
     @Override
@@ -68,9 +71,16 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void teleopPeriodic()
     {
+        
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
-        robotDrive.arcadeDrive(primaryController.getY(GenericHID.Hand.kLeft), -primaryController.getX(GenericHID.Hand.kLeft));
+        robotDrive.arcadeDrive(primaryController.getY(GenericHID.Hand.kLeft), -primaryController.getX(GenericHID.Hand.kRight));
         // robotDrive.arcadeDrive(primaryController.getY(GenericHID.Hand.kRight), -primaryController.getX(GenericHID.Hand.kLeft));
+        //leftDriveMotor1.set(primaryController.getTriggerAxis(GenericHID.Hand.kRight));
+        if (gearMotor.isAlive()) {
+        System.out.println("Alive");
+        }
+        gearMotor.set(-primaryController.getTriggerAxis(GenericHID.Hand.kRight));
+        System.out.println(gearMotor.get());
     }
 
     @Override
