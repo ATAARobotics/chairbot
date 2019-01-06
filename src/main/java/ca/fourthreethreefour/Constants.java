@@ -44,5 +44,5 @@ import ca.fourthreethreefour.settings.Settings;
  */
 
 //Make sure to add whatever subsystem you add to here
-public interface Constants extends Settings {
+public interface Constants {
 }
