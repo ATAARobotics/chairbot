@@ -45,7 +45,7 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = settingsTab.addPersistent("Logging", false).getEntry();
-            boolean LOGGING_ENABLED = LOGGING_ENABLED_ENTRY.getBoolean(false);
+            boolean LOGGING_ENABLED;
 
         NetworkTableEntry DRIVE_SPEED_ENTRY = settingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
             double DRIVE_SPEED;
