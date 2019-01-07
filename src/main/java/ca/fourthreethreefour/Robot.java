@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -123,7 +124,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void disabledPeriodic() {
         updateSettings();
-        System.out.println(DRIVE_SPEED);
+        Logging.logf("Drive Speed", DRIVE_SPEED);
         Timer.delay(1);
     }
 
