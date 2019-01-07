@@ -124,7 +124,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void disabledPeriodic() {
         updateSettings();
-        Logging.logf("Drive Speed", DRIVE_SPEED);
+        Logging.log("Drive Speed: " + DRIVE_SPEED, LOGGING_ENABLED);
         Timer.delay(1);
     }
 
