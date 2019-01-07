@@ -1,7 +1,5 @@
 package ca.fourthreethreefour;
 
-import ca.fourthreethreefour.settings.Settings;
-
 /**
  * The central repository for all constant values. Values here are expected to
  * be accessible to the entire program, and for anyone to view.
