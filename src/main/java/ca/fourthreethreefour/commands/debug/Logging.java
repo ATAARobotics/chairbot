@@ -1,11 +1,14 @@
 package ca.fourthreethreefour.commands.debug;
 
+import ca.fourthreethreefour.Robot;
 import edu.wpi.first.networktables.NetworkTableEntry;
 
 public class Logging {
 
-    public static void put(NetworkTableEntry key, double value, boolean enabled) {
-        if (enabled) {
+    
+
+    public static void put(NetworkTableEntry key, double value) {
+        if (Robot.LOGGING_ENABLED) {
             
             //ShuffleboardTab tab = Shuffleboard.getTab("Vision");
             //NetworkTableEntry distanceEntry = tab.add("Distance to target", 0).getEntry();
@@ -15,37 +18,30 @@ public class Logging {
         }
     }
     
-    public static void put(NetworkTableEntry key, String value, boolean enabled) {
-        if (enabled) {
+    public static void put(NetworkTableEntry key, String value) {
+        if (Robot.LOGGING_ENABLED) {
             key.setString(value);
             //edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putString(key, value);
         }
     }
     
-    public static void put(NetworkTableEntry key, boolean value, boolean enabled) {
-        if (enabled) {
+    public static void put(NetworkTableEntry key, boolean value) {
+        if (Robot.LOGGING_ENABLED) {
             key.setBoolean(value);
             //edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putBoolean(key, value);
         }
     }
-    
-    public static void log(String str) {
-            System.out.println(str);
-    }
 
-    public static void log(String str, boolean enabled) {
-        if (enabled) {
+    public static void log(String str) {
+        if (Robot.LOGGING_ENABLED) {
             System.out.println(str);
         }
     }
     
     public static void logf(String format, Object... args) {
-            System.out.printf(format + "\n", args);
-    }
-
-    public static void logf(String format, boolean enabled, Object... args) {
-        if (enabled) {
+        if (Robot.LOGGING_ENABLED) {
             System.out.printf(format + "\n", args);
         }
     }
 }
+

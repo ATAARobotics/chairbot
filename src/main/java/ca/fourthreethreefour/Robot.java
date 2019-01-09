@@ -45,7 +45,7 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
-            boolean LOGGING_ENABLED;
+            static public boolean LOGGING_ENABLED;
 
         NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
             double DRIVE_SPEED;
@@ -118,13 +118,13 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+        Logging.log("Speed: " + speed);
        
     }
 
     @Override
     public void disabledPeriodic() {
         updateSettings();
-        Logging.log("Drive Speed: " + DRIVE_SPEED, LOGGING_ENABLED);
     }
 
     @Override
