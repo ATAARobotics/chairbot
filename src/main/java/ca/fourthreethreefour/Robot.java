@@ -41,29 +41,29 @@ public class Robot extends TimedRobot implements Constants
     private DifferentialDrive robotDrive;
 
     
-    ShuffleboardTab settingsTab = Shuffleboard.getTab("Settings");
+    ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     
-	    NetworkTableEntry LOGGING_ENABLED_ENTRY = settingsTab.addPersistent("Logging", false).getEntry();
+	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
             boolean LOGGING_ENABLED;
 
-        NetworkTableEntry DRIVE_SPEED_ENTRY = settingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
             double DRIVE_SPEED;
-        NetworkTableEntry DRIVE_COMPENSATION_ENTRY = settingsTab.addPersistent("Drive Compensation", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
+        NetworkTableEntry DRIVE_COMPENSATION_ENTRY = dynamicSettingsTab.addPersistent("Drive Compensation", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
             double DRIVE_COMPENSATION;
-        NetworkTableEntry TURN_CURVE_ENTRY = settingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
+        NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
             double TURN_CURVE;
 
             
 
-	    NetworkTableEntry XBOXCONTROLLER_ENTRY = settingsTab.addPersistent("XboxController", 0).getEntry();
+	    NetworkTableEntry XBOXCONTROLLER_ENTRY = portsTab.addPersistent("XboxController", 0).getEntry();
             int XBOXCONTROLLER = (int) XBOXCONTROLLER_ENTRY.getDouble(0);
             
-	    NetworkTableEntry GEAR_MOTOR_ENTRY = settingsTab.addPersistent("Gear Motor", 2).getEntry();
+	    NetworkTableEntry GEAR_MOTOR_ENTRY = portsTab.addPersistent("Gear Motor", 2).getEntry();
             int GEAR_MOTOR = (int) GEAR_MOTOR_ENTRY.getDouble(2);
-        NetworkTableEntry LEFT_DRIVE_MOTOR_ENTRY = settingsTab.addPersistent("Left Drive Motor", 1).getEntry();
+        NetworkTableEntry LEFT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Left Drive Motor", 1).getEntry();
             int LEFT_DRIVE_MOTOR = (int) LEFT_DRIVE_MOTOR_ENTRY.getDouble(1);
-        NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = settingsTab.addPersistent("Right Drive Motor", 3).getEntry();
+        NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
             int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
 
         
@@ -125,7 +125,6 @@ public class Robot extends TimedRobot implements Constants
     public void disabledPeriodic() {
         updateSettings();
         Logging.log("Drive Speed: " + DRIVE_SPEED, LOGGING_ENABLED);
-        Timer.delay(1);
     }
 
     @Override
