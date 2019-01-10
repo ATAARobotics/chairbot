@@ -13,10 +13,12 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -40,9 +42,16 @@ public class Robot extends TimedRobot implements Constants
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
 
+    private AnalogInput lineTracker1;
+    private AnalogInput lineTracker2;
+    private AnalogInput lineTracker3;
+
+    // Ultrasonic goes here
+
     
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
+    ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
     
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
             static public boolean LOGGING_ENABLED;
@@ -66,6 +75,11 @@ public class Robot extends TimedRobot implements Constants
         NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
             int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
 
+
+        NetworkTableEntry LINE_TRACKER_ENTRY_1 = outputTab.add("Left Line Tracker", 0).getEntry();
+        NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
+        NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
+
         
 
     @Override
@@ -83,6 +97,10 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+
+        lineTracker1 = new AnalogInput(0);
+        lineTracker2 = new AnalogInput(1);
+        lineTracker3 = new AnalogInput(2);
 
         // Sets the appropriate configuration settings for the motors
 
@@ -119,7 +137,14 @@ public class Robot extends TimedRobot implements Constants
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
         Logging.log("Speed: " + speed);
-       
+        Logging.put(LINE_TRACKER_ENTRY_1, lineTracker1.getValue());
+        Logging.put(LINE_TRACKER_ENTRY_2, lineTracker2.getValue());
+        Logging.put(LINE_TRACKER_ENTRY_3, lineTracker3.getValue());
+
+        // Take .getValue() and based on if the value is greater than x or less than x
+        // assign it a boolean with true being on the line, and false being off of it
+        
+        // If boolean is false, check 
     }
 
     @Override
