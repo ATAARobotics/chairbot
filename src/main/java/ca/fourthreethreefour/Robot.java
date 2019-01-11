@@ -12,6 +12,7 @@ import java.util.Map;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import ca.fourthreethreefour.commands.debug.Logging;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -101,6 +102,8 @@ public class Robot extends TimedRobot implements Constants
         lineTracker1 = new AnalogInput(0);
         lineTracker2 = new AnalogInput(1);
         lineTracker3 = new AnalogInput(2);
+
+        CameraServer.getInstance().startAutomaticCapture();
 
         // Sets the appropriate configuration settings for the motors
 
