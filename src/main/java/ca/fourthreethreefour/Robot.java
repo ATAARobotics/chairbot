@@ -26,6 +26,13 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
+import edu.wpi.first.wpilibj.vision.VisionRunner;
+import edu.wpi.first.wpilibj.vision.VisionThread;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.RobotDrive;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
 {
@@ -46,6 +53,16 @@ public class Robot extends TimedRobot implements Constants
     private AnalogInput lineTracker1;
     private AnalogInput lineTracker2;
     private AnalogInput lineTracker3;
+
+    //Vision Proccessing
+    private static final int IMG_WIDTH = 320;
+	private static final int IMG_HEIGHT = 240;
+	
+	private VisionThread visionThread;
+	private double centerX = 0.0;
+	private RobotDrive drive;
+	
+	private final Object imgLock = new Object();
 
     // Ultrasonic goes here
 
@@ -103,7 +120,24 @@ public class Robot extends TimedRobot implements Constants
         lineTracker2 = new AnalogInput(1);
         lineTracker3 = new AnalogInput(2);
 
-        CameraServer.getInstance().startAutomaticCapture();
+        // Initialize Camera
+        UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+        camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+
+        visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
+            if (!pipeline.filterContoursOutput().isEmpty()) {
+                Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+                Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+                System.out.println("Object 1: " + r1.toString());
+                System.out.println("Object 2: " + r2.toString());
+                synchronized (imgLock) {
+                    centerX = r1.x + (r1.width / 2);
+                }
+            }
+        });
+        visionThread.start();
+            
+        //drive = new RobotDrive(1, 2);
 
         // Sets the appropriate configuration settings for the motors
 
@@ -139,10 +173,10 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
-        Logging.log("Speed: " + speed);
+        /* Logging.log("Speed: " + speed);
         Logging.put(LINE_TRACKER_ENTRY_1, lineTracker1.getValue());
         Logging.put(LINE_TRACKER_ENTRY_2, lineTracker2.getValue());
-        Logging.put(LINE_TRACKER_ENTRY_3, lineTracker3.getValue());
+        Logging.put(LINE_TRACKER_ENTRY_3, lineTracker3.getValue());*/
 
         // Take .getValue() and based on if the value is greater than x or less than x
         // assign it a boolean with true being on the line, and false being off of it
