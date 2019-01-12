@@ -126,12 +126,16 @@ public class Robot extends TimedRobot implements Constants
 
         visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
             if (!pipeline.filterContoursOutput().isEmpty()) {
-                Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-                Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
-                System.out.println("Object 1: " + r1.toString());
-                System.out.println("Object 2: " + r2.toString());
-                synchronized (imgLock) {
-                    centerX = r1.x + (r1.width / 2);
+                try {
+                    Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+                    Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+                    System.out.println("Object 1: " + r1.toString());
+                    System.out.println("Object 2: " + r2.toString());
+                    synchronized (imgLock) {
+                        centerX = r1.x + (r1.width / 2);
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    Logging.log("No rectangle");
                 }
             }
         });
