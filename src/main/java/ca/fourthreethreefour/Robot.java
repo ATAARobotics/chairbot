@@ -33,6 +33,10 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import org.opencv.core.Mat;
+
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
 {
@@ -98,7 +102,7 @@ public class Robot extends TimedRobot implements Constants
         NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
         NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
 
-       
+        //test   
 
     @Override
     public void robotInit()
@@ -123,8 +127,10 @@ public class Robot extends TimedRobot implements Constants
         // Initialize Camera
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+        Mat source = new Mat();
+        GripPipeline visionProcessing = new GripPipeline();
 
-        visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
+        visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 try {
                     Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
@@ -139,8 +145,13 @@ public class Robot extends TimedRobot implements Constants
                 }
             }
         });
-        visionThread.start();
-            
+
+        visionThread.start(); 
+
+        visionProcessing.process(source);
+
+
+         
         //drive = new RobotDrive(1, 2);
 
         // Sets the appropriate configuration settings for the motors
