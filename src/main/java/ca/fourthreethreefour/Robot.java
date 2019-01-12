@@ -134,8 +134,8 @@ public class Robot extends TimedRobot implements Constants
                     synchronized (imgLock) {
                         centerX = r1.x + (r1.width / 2);
                     }
-                } catch (IndexOutOfBoundsException e) {
-                    Logging.log("No rectangle");
+                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                    System.out.println("No vision target detected " + e.getMessage());
                 }
             }
         });
