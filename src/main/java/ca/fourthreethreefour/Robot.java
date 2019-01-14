@@ -26,8 +26,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
-import edu.wpi.first.wpilibj.vision.VisionRunner;
-import edu.wpi.first.wpilibj.vision.VisionThread;
+import edu.wpi.first.vision.VisionRunner;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.RobotDrive;
 import org.opencv.core.Rect;
@@ -143,6 +143,9 @@ public class Robot extends TimedRobot implements Constants
                 } catch (IndexOutOfBoundsException | NullPointerException e) {
                     System.out.println("No vision target detected " + e.getMessage());
                 }
+            }
+            else{
+                System.out.println("Contours are empty");
             }
         });
 
