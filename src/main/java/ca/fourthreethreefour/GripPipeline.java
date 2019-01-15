@@ -15,7 +15,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.first.wpilibj.vision.VisionPipeline;
+import edu.wpi.first.vision.VisionPipeline;
 
 /**
 * GripPipeline class.

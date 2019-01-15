@@ -26,12 +26,16 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
-import edu.wpi.first.wpilibj.vision.VisionRunner;
-import edu.wpi.first.wpilibj.vision.VisionThread;
+import edu.wpi.first.vision.VisionRunner;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.RobotDrive;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import org.opencv.core.Mat;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -98,7 +102,7 @@ public class Robot extends TimedRobot implements Constants
         NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
         NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
 
-        
+        //test   
 
     @Override
     public void robotInit()
@@ -123,8 +127,10 @@ public class Robot extends TimedRobot implements Constants
         // Initialize Camera
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+        Mat source = new Mat();
+        GripPipeline visionProcessing = new GripPipeline();
 
-        visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
+        visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 try {
                     Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
@@ -134,13 +140,21 @@ public class Robot extends TimedRobot implements Constants
                     synchronized (imgLock) {
                         centerX = r1.x + (r1.width / 2);
                     }
-                } catch (IndexOutOfBoundsException e) {
-                    Logging.log("No rectangle");
+                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                    System.out.println("No vision target detected " + e.getMessage());
                 }
             }
+            else{
+                System.out.println("Contours are empty");
+            }
         });
-        visionThread.start();
-            
+
+        visionThread.start(); 
+
+        visionProcessing.process(source);
+
+
+         
         //drive = new RobotDrive(1, 2);
 
         // Sets the appropriate configuration settings for the motors
