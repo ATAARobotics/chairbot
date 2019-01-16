@@ -135,8 +135,7 @@ public class GripPipeline implements VisionPipeline {
 	 * @param interpolation The type of interpolation.
 	 * @param output The image in which to store the output.
 	 */
-	private void resizeImage(Mat input, double width, double height,
-		int interpolation, Mat output) {
+	private void resizeImage(Mat input, double width, double height, int interpolation, Mat output) {
 		Imgproc.resize(input, output, new Size(width, height), 0.0, 0.0, interpolation);
 	}
 

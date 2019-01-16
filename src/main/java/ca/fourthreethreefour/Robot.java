@@ -31,7 +31,9 @@ import edu.wpi.first.vision.VisionThread;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.RobotDrive;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Point;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
@@ -74,7 +76,8 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
-    
+
+        //TODO change integers to Object in map.of
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
             static public boolean LOGGING_ENABLED;
 
@@ -89,7 +92,6 @@ public class Robot extends TimedRobot implements Constants
 
 	    NetworkTableEntry XBOXCONTROLLER_ENTRY = portsTab.addPersistent("XboxController", 0).getEntry();
             int XBOXCONTROLLER = (int) XBOXCONTROLLER_ENTRY.getDouble(0);
-            
 	    NetworkTableEntry GEAR_MOTOR_ENTRY = portsTab.addPersistent("Gear Motor", 2).getEntry();
             int GEAR_MOTOR = (int) GEAR_MOTOR_ENTRY.getDouble(2);
         NetworkTableEntry LEFT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Left Drive Motor", 1).getEntry();
@@ -102,7 +104,7 @@ public class Robot extends TimedRobot implements Constants
         NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
         NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
 
-        //test   
+
 
     @Override
     public void robotInit()
@@ -126,22 +128,53 @@ public class Robot extends TimedRobot implements Constants
 
         // Initialize Camera
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+
+        //Sets properties
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+
+        //Initializes Mat for .process
         Mat source = new Mat();
+
+        //Starts CvSink to capture Mats
+        CvSink cvSink = CameraServer.getInstance().getVideo();
+
+        //Starts CvSource to send processed video feed back
+        CvSource outputStream = CameraServer.getInstance().putVideo("Image Analysis", IMG_WIDTH, IMG_HEIGHT);
+
+        //Starts GripPipeline
         GripPipeline visionProcessing = new GripPipeline();
 
+        //Starts Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             if (!pipeline.filterContoursOutput().isEmpty()) {
+                //Grab video frame for processing
+                cvSink.grabFrame(source);
                 try {
+                    //Processes image
+                    visionProcessing.process(source);
+
+                    //Creates rectangles
                     Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
                     Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+
+                    //prints object locations
                     System.out.println("Object 1: " + r1.toString());
                     System.out.println("Object 2: " + r2.toString());
+
+                    //This is here to use for tracking and causing movement
                     synchronized (imgLock) {
                         centerX = r1.x + (r1.width / 2);
                     }
+                    //Draws the rectangles
+                    Imgproc.rectangle(source, new Point(r1.x, r1.y), new Point(r1.x + r1.width, r1.y + r1.height), new Scalar(0,0,255), 2);
+                    Imgproc.rectangle(source, new Point(r2.x, r2.y), new Point(r2.x + r2.width, r2.y + r2.height), new Scalar(0,0,255), 2);
+
+                    //Send frame
+                    outputStream.putFrame(source);
+                    
                 } catch (IndexOutOfBoundsException | NullPointerException e) {
                     System.out.println("No vision target detected " + e.getMessage());
+                    outputStream.putFrame(source);
                 }
             }
             else{
@@ -150,8 +183,6 @@ public class Robot extends TimedRobot implements Constants
         });
 
         visionThread.start(); 
-
-        visionProcessing.process(source);
 
 
          
