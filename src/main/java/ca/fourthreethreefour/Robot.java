@@ -55,10 +55,12 @@ public class Robot extends TimedRobot implements Constants
     private static final int IMG_HEIGHT = 240;
 
     private VisionThread visionThread;
-    private double centerX = 0.0;
-    private double centerY = 0.0;
-
-	private final Object imgLock = new Object();
+    
+    //TODO use below values when driver assit code is ready to be added
+    //private double centerX = 0.0;
+    //private double centerY = 0.0;
+    //private Rect rectarray[];
+	//private final Object imgLock = new Object();
 
     // Ultrasonic goes here
 
@@ -126,12 +128,12 @@ public class Robot extends TimedRobot implements Constants
 
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
-            //Grab video frame for processing
-            cvSink.grabFrame(source);
 
             //Check if the final output has anything
             if (!pipeline.filterContoursOutput().isEmpty()) {
+                //Grabs frame for processing
                 cvSink.grabFrame(source);
+                //rectarray = new Rect[5];
                 try{
                     //Processes Image
                     visionProcessing.process(source);
@@ -145,6 +147,9 @@ public class Robot extends TimedRobot implements Constants
                         
                         //Draw Rectangle
                         Imgproc.rectangle(source, new Point(rx.x, rx.y), new Point(rx.x + rx.width, rx.y + rx.height), new Scalar(0,0,255), 2);
+
+                        //Adds rectangle to array to store size and position values
+                        //rectarray[i] = rx;
                     }
 
                     //Send Frame
