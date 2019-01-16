@@ -11,33 +11,27 @@ import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import ca.fourthreethreefour.commands.debug.Logging;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Ultrasonic;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-
-import edu.wpi.first.vision.VisionRunner;
-import edu.wpi.first.vision.VisionThread;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.RobotDrive;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.core.Point;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
-import org.opencv.core.Mat;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.vision.VisionThread;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -48,26 +42,23 @@ public class Robot extends TimedRobot implements Constants
     // Initialize the drivetrain motors
     private WPI_TalonSRX gearMotor;
     private WPI_TalonSRX leftDriveMotor;
-    //private WPI_TalonSRX rightDriveMotor1;
+    // private WPI_TalonSRX rightDriveMotor1;
     private WPI_TalonSRX rightDriveMotor;
 
-    // Pairs up the drivetrain motors based on their respective side and initializes the drivetrain controlling object
+    // Pairs up the drivetrain motors based on their respective side and initializes
+    // the drivetrain controlling object
     private SpeedControllerGroup leftSideDriveMotors;
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
 
-    private AnalogInput lineTracker1;
-    private AnalogInput lineTracker2;
-    private AnalogInput lineTracker3;
-
-    //Vision Proccessing
+    // Vision Proccessing
     private static final int IMG_WIDTH = 320;
-	private static final int IMG_HEIGHT = 240;
-	
-	private VisionThread visionThread;
-	private double centerX = 0.0;
-	private RobotDrive drive;
-	
+    private static final int IMG_HEIGHT = 240;
+
+    private VisionThread visionThread;
+    private double centerX = 0.0;
+    private RobotDrive drive;
+
 	private final Object imgLock = new Object();
 
     // Ultrasonic goes here
@@ -100,11 +91,6 @@ public class Robot extends TimedRobot implements Constants
             int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
 
 
-        NetworkTableEntry LINE_TRACKER_ENTRY_1 = outputTab.add("Left Line Tracker", 0).getEntry();
-        NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
-        NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
-
-
 
     @Override
     public void robotInit()
@@ -121,10 +107,6 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
-
-        lineTracker1 = new AnalogInput(0);
-        lineTracker2 = new AnalogInput(1);
-        lineTracker3 = new AnalogInput(2);
 
         // Initialize Camera
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
@@ -222,15 +204,6 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
-        /* Logging.log("Speed: " + speed);
-        Logging.put(LINE_TRACKER_ENTRY_1, lineTracker1.getValue());
-        Logging.put(LINE_TRACKER_ENTRY_2, lineTracker2.getValue());
-        Logging.put(LINE_TRACKER_ENTRY_3, lineTracker3.getValue());*/
-
-        // Take .getValue() and based on if the value is greater than x or less than x
-        // assign it a boolean with true being on the line, and false being off of it
-        
-        // If boolean is false, check 
     }
 
     @Override
