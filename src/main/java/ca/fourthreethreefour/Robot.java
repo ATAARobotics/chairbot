@@ -131,63 +131,24 @@ public class Robot extends TimedRobot implements Constants
 
             //Check if the final output has anything
             if (!pipeline.filterContoursOutput().isEmpty()) {
-<<<<<<< HEAD
-                try {
-                    //Processes image
-=======
                 cvSink.grabFrame(source);
                 try{
                     //Processes Image
->>>>>>> e448a657113446b35da877f8690112d4075bd820
                     visionProcessing.process(source);
 
                     //Creates All Rectangles
                     for(int i = 0; i <= pipeline.filterContoursOutput().size(); i++){
                         Rect rx = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
 
-<<<<<<< HEAD
-                    //prints object locations
-                    System.out.println("Object 1: " + r1.toString());
-                    System.out.println("Object 2: " + r2.toString());
-
-                    //This is here to use for tracking and causing movement
-                    synchronized (imgLock) {
-                        //Finds the dead center based off of the x distance between our two rectangles.
-                        //rX.x + (rX.width / 2) is the center of the rectangle
-                        centerX = (r1.x + (r1.width/2) + r2.x + (r2.width/2))/2;
-                        centerY = (r1.y + (r1.height/2) + r2.y + (r2.height/2))/2;
-                    }
-
-                    //Draws the rectangles
-                    Imgproc.rectangle(source, new Point(r1.x, r1.y), new Point(r1.x + r1.width, r1.y + r1.height), new Scalar(0,0,255), 2);
-                    Imgproc.rectangle(source, new Point(r2.x, r2.y), new Point(r2.x + r2.width, r2.y + r2.height), new Scalar(0,0,255), 2);
-                    //Additional rectangle to show "Center"
-                    Imgproc.rectangle(source, new Point(centerX-1, centerY-1), new Point(centerX+1,centerY+1), new Scalar(0,0,255),2);
-=======
                         //Prints Location of Rectangle
                         System.out.println("Object " + i + ": " + rx.toString());
                         
                         //Draw Rectangle
                         Imgproc.rectangle(source, new Point(rx.x, rx.y), new Point(rx.x + rx.width, rx.y + rx.height), new Scalar(0,0,255), 2);
                     }
->>>>>>> e448a657113446b35da877f8690112d4075bd820
 
                     //Send Frame
                     outputStream.putFrame(source);
-<<<<<<< HEAD
-                    
-                } 
-                //Runs if there is only one contour is in the output
-                catch (IndexOutOfBoundsException | NullPointerException e) {
-                    System.out.println("No vision target detected " + e.getMessage());
-                    outputStream.putFrame(source);
-                }
-            }
-            //Runs if no countours are found
-            else{
-                System.out.println("Contours are empty");
-                outputStream.putFrame(source);
-=======
 
                 } catch (IndexOutOfBoundsException | NullPointerException e){
                     System.out.println("No vision target detected " + e.getMessage());
@@ -195,7 +156,6 @@ public class Robot extends TimedRobot implements Constants
                 }
             } else {
                 System.out.println("No Contours Detected");
->>>>>>> e448a657113446b35da877f8690112d4075bd820
             }
         });
 
