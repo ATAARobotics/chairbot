@@ -129,38 +129,31 @@ public class Robot extends TimedRobot implements Constants
         //Starts Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             if (!pipeline.filterContoursOutput().isEmpty()) {
-                //Grab video frame for processing
                 cvSink.grabFrame(source);
-                try {
-                    //Processes image
+                try{
+                    //Processes Image
                     visionProcessing.process(source);
 
-                    //Creates rectangles
-                    Rect r1 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-                    Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+                    //Creates All Rectangles
+                    for(int i = 0; i <= pipeline.filterContoursOutput().size(); i++){
+                        Rect rx = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
 
-                    //prints object locations
-                    System.out.println("Object 1: " + r1.toString());
-                    System.out.println("Object 2: " + r2.toString());
-
-                    //This is here to use for tracking and causing movement
-                    synchronized (imgLock) {
-                        centerX = r1.x + (r1.width / 2);
+                        //Prints Location of Rectangle
+                        System.out.println("Object " + i + ": " + rx.toString());
+                        
+                        //Draw Rectangle
+                        Imgproc.rectangle(source, new Point(rx.x, rx.y), new Point(rx.x + rx.width, rx.y + rx.height), new Scalar(0,0,255), 2);
                     }
-                    //Draws the rectangles
-                    Imgproc.rectangle(source, new Point(r1.x, r1.y), new Point(r1.x + r1.width, r1.y + r1.height), new Scalar(0,0,255), 2);
-                    Imgproc.rectangle(source, new Point(r2.x, r2.y), new Point(r2.x + r2.width, r2.y + r2.height), new Scalar(0,0,255), 2);
 
-                    //Send frame
+                    //Send Frame
                     outputStream.putFrame(source);
-                    
-                } catch (IndexOutOfBoundsException | NullPointerException e) {
+
+                } catch (IndexOutOfBoundsException | NullPointerException e){
                     System.out.println("No vision target detected " + e.getMessage());
                     outputStream.putFrame(source);
                 }
-            }
-            else{
-                System.out.println("Contours are empty");
+            } else {
+                System.out.println("No Contours Detected");
             }
         });
 
