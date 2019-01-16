@@ -24,7 +24,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -57,7 +56,7 @@ public class Robot extends TimedRobot implements Constants
 
     private VisionThread visionThread;
     private double centerX = 0.0;
-    private RobotDrive drive;
+    private double centerY = 0.0;
 
 	private final Object imgLock = new Object();
 
@@ -68,7 +67,6 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
 
-        //TODO change integers to Object in map.of
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
             static public boolean LOGGING_ENABLED;
 
@@ -126,11 +124,13 @@ public class Robot extends TimedRobot implements Constants
         //Starts GripPipeline
         GripPipeline visionProcessing = new GripPipeline();
 
-        //Starts Thread
+        //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
+            //Grab video frame for processing
+            cvSink.grabFrame(source);
+
+            //Check if the final output has anything
             if (!pipeline.filterContoursOutput().isEmpty()) {
-                //Grab video frame for processing
-                cvSink.grabFrame(source);
                 try {
                     //Processes image
                     visionProcessing.process(source);
@@ -145,36 +145,42 @@ public class Robot extends TimedRobot implements Constants
 
                     //This is here to use for tracking and causing movement
                     synchronized (imgLock) {
-                        centerX = r1.x + (r1.width / 2);
+                        //Finds the dead center based off of the x distance between our two rectangles.
+                        //rX.x + (rX.width / 2) is the center of the rectangle
+                        centerX = (r1.x + (r1.width/2) + r2.x + (r2.width/2))/2;
+                        centerY = (r1.y + (r1.height/2) + r2.y + (r2.height/2))/2;
                     }
+
                     //Draws the rectangles
                     Imgproc.rectangle(source, new Point(r1.x, r1.y), new Point(r1.x + r1.width, r1.y + r1.height), new Scalar(0,0,255), 2);
                     Imgproc.rectangle(source, new Point(r2.x, r2.y), new Point(r2.x + r2.width, r2.y + r2.height), new Scalar(0,0,255), 2);
+                    //Additional rectangle to show "Center"
+                    Imgproc.rectangle(source, new Point(centerX-1, centerY-1), new Point(centerX+1,centerY+1), new Scalar(0,0,255),2);
 
                     //Send frame
                     outputStream.putFrame(source);
                     
-                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                } 
+                //Runs if there is only one contour is in the output
+                catch (IndexOutOfBoundsException | NullPointerException e) {
                     System.out.println("No vision target detected " + e.getMessage());
                     outputStream.putFrame(source);
                 }
             }
+            //Runs if no countours are found
             else{
                 System.out.println("Contours are empty");
+                outputStream.putFrame(source);
             }
         });
 
+        //starts vision thread
         visionThread.start(); 
 
-
-         
         //drive = new RobotDrive(1, 2);
 
         // Sets the appropriate configuration settings for the motors
-
-
         leftSideDriveMotors.setInverted(true);
-
         rightSideDriveMotors.setInverted(true);
         robotDrive.setSafetyEnabled(true);
         robotDrive.setExpiration(0.1);
