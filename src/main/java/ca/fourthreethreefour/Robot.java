@@ -7,6 +7,7 @@
 
 package ca.fourthreethreefour;
 
+import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot implements Constants
     //TODO use below values when driver assit code is ready to be added
     //private double centerX = 0.0;
     //private double centerY = 0.0;
-    //private Rect rectarray[];
+    private List<Rect> rectList;
 	//private final Object imgLock = new Object();
 
     // Ultrasonic goes here
@@ -133,7 +134,7 @@ public class Robot extends TimedRobot implements Constants
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
                 cvSink.grabFrame(source);
-                //rectarray = new Rect[5];
+                rectList.clear();
                 try{
                     //Processes Image
                     visionProcessing.process(source);
@@ -149,7 +150,7 @@ public class Robot extends TimedRobot implements Constants
                         Imgproc.rectangle(source, new Point(rx.x, rx.y), new Point(rx.x + rx.width, rx.y + rx.height), new Scalar(0,0,255), 2);
 
                         //Adds rectangle to array to store size and position values
-                        //rectarray[i] = rx;
+                        rectList.add(rx);
                     }
 
                     //Send Frame
