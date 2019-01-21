@@ -113,7 +113,7 @@ public class Robot extends TimedRobot implements Constants
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
         
-        //Initializes Mat for modification
+        //Initializes image Mat for modification
         Mat source = new Mat();
         
         //Starts CvSink to capture Mats
@@ -122,7 +122,7 @@ public class Robot extends TimedRobot implements Constants
         //TODO remove once debugging is done
         CvSource outputStream = CameraServer.getInstance().putVideo("Image Analysis", IMG_WIDTH, IMG_HEIGHT);
         
-        //Starts GripPipeline
+        //Makes GripPipeline Object
         GripPipeline visionProcessing = new GripPipeline();
         
         //Configures vision Thread
@@ -130,8 +130,10 @@ public class Robot extends TimedRobot implements Constants
             
             //Grabs frame for processing
             cvSink.grabFrame(source);
+            
             //Initializes new Rect array to store data for assist code
             Rect[] visionTarget = new Rect[2];
+
             //TODO test if this is is necessary
             //Processes Image
             //visionProcessing.process(source);
@@ -141,30 +143,40 @@ public class Robot extends TimedRobot implements Constants
                 outputStream.putFrame(source);
                 System.out.println("No Contours Detected");
             }
-            //If there is only one target, make our Vision target two of our same rectangle
+
+            //If there is only one target, make visionTarget use two of the same rectangle
             else if(pipeline.filterContoursOutput().size() == 1){
+                
                 //Prints Location of Rectangle
                 System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
+                
                 //sets up vision target
                 visionTarget[0] = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
                 visionTarget[1] = visionTarget[0];
             }
-            //Sorts rectangles where [0] is largest and [1] is second largest
+
+            //Sorts rectangles into visionTarget where [0] is largest and [1] is second largest
             else{
-                //Determines the two largest rectangles and indexes them
+
+                //Determines the two largest rectangles puts them in visionTarget
                 for (int i = 1; i < pipeline.filterContoursOutput().size();i++){
+
                     //Creates temporary object
                     Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
                     
                     //If the current rectangle is larger than our largest
                     if(visionTarget[0].area() < currentRectangle.area()){
+
                         //Changes largest target to second largest
                         visionTarget[1] = visionTarget[0];
+
                         //Changes largest target to current target
                         visionTarget[0] = currentRectangle;
                     }
+
                     //If the current rectangle is larger thanm the second largest
                     else if(visionTarget[1].area() < currentRectangle.area()){
+
                         //Changes second largest target to current rectangles
                         visionTarget[1] = currentRectangle;
                     }
