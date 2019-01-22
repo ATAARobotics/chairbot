@@ -34,6 +34,16 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.TimedRobot;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.PathfinderFRC;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.followers.EncoderFollower;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -108,96 +118,8 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
-        
-        // Initialize Camera with properties
-        UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-        camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-        
-        //Initializes image Mat for modification
-        Mat source = new Mat();
-        
-        //Starts CvSink to capture Mats
-        CvSink cvSink = CameraServer.getInstance().getVideo();
-        
-        //TODO remove once debugging is done
-        CvSource outputStream = CameraServer.getInstance().putVideo("Image Analysis", IMG_WIDTH, IMG_HEIGHT);
-        
-        //Makes GripPipeline Object
-        GripPipeline visionProcessing = new GripPipeline();
-        
-        //Configures vision Thread
-        visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
-            
-            //Grabs frame for processing
-            cvSink.grabFrame(source);
-            
-            //Initializes new Rect array to store data for assist code
-            Rect[] visionTarget = new Rect[2];
 
-            //TODO test if this is is necessary
-            //Processes Image
-            //visionProcessing.process(source);
-            
-            //If filter has nothing, send frame
-            if (pipeline.filterContoursOutput().isEmpty()) {
-                outputStream.putFrame(source);
-                System.out.println("No Contours Detected");
-            }
 
-            //If there is only one target, make visionTarget use two of the same rectangle
-            else if(pipeline.filterContoursOutput().size() == 1){
-                
-                //Prints Location of Rectangle
-                System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
-                
-                //sets up vision target
-                visionTarget[0] = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-                visionTarget[1] = visionTarget[0];
-            }
-
-            //Sorts rectangles into visionTarget where [0] is largest and [1] is second largest
-            else{
-
-                //Determines the two largest rectangles puts them in visionTarget
-                for (int i = 1; i < pipeline.filterContoursOutput().size();i++){
-
-                    //Creates temporary object
-                    Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
-                    
-                    //If the current rectangle is larger than our largest
-                    if(visionTarget[0].area() < currentRectangle.area()){
-
-                        //Changes largest target to second largest
-                        visionTarget[1] = visionTarget[0];
-
-                        //Changes largest target to current target
-                        visionTarget[0] = currentRectangle;
-                    }
-
-                    //If the current rectangle is larger thanm the second largest
-                    else if(visionTarget[1].area() < currentRectangle.area()){
-
-                        //Changes second largest target to current rectangles
-                        visionTarget[1] = currentRectangle;
-                    }
-                }
-            }
-            //TODO Remove below when done debugging
-            //Draws rectangles
-            Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
-            Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
-            //Send Frame
-            outputStream.putFrame(source);
-            
-            //Sends data
-            synchronized(imgLock){
-                
-            }
-        });
-        
-        //starts vision thread
-        visionThread.start(); 
-        
         //drive = new RobotDrive(1, 2);
         
         // Sets the appropriate configuration settings for the motors
@@ -215,12 +137,31 @@ public class Robot extends TimedRobot implements Constants
         // Enables motor safety for the drivetrain for teleop
         robotDrive.setSafetyEnabled(true);
         //gearMotor.setSafetyEnabled(true);
-    }
+     
+        //Generates a waypoint for the robot to travel though
+        Waypoint[] waypoints = new Waypoint[] {
+                new Waypoint(-4, -1, Pathfinder.d2r(-45)),
+                new Waypoint(-2, -2, 0),
+                new Waypoint(0, 0, 0)
+        };
+        //generates a trajectory
+        Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60.0);
+        Trajectory trajectory = Pathfinder.generate(waypoints, config);
+     
+        
+        
+};
+
+    
     
     @Override
-    public void autonomousPeriodic()
-    {
+    public void autonomousPeriodic(){
+  
+        
+
+    
     }
+
     
     @Override
     public void teleopPeriodic()
