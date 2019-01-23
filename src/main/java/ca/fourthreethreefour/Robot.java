@@ -136,7 +136,7 @@ public class Robot extends TimedRobot implements Constants
 
             //TODO test if this is is necessary
             //Processes Image
-            //visionProcessing.process(source);
+            visionProcessing.process(source);
             
             //If filter has nothing, send frame
             if (pipeline.filterContoursOutput().isEmpty()) {
