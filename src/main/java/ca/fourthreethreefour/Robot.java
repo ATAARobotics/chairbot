@@ -136,7 +136,7 @@ public class Robot extends TimedRobot implements Constants
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             //If we want to stream camera feed while no countours are present, remove below comment and comment in else statement below
-            //cvSink.grabFrame(source)
+            cvSink.grabFrame(source);
 
             //Check if the final output has anything
             if (!pipeline.filterContoursOutput().isEmpty()) {
@@ -231,7 +231,7 @@ public class Robot extends TimedRobot implements Constants
                     outputStream.putFrame(source);
                 }*/
             } else {
-                //outputStream.putFrame(source);
+                outputStream.putFrame(source);
                 System.out.println("No Contours Detected");
             }
         });
