@@ -133,6 +133,9 @@ public class Robot extends TimedRobot implements Constants
             
             //Initializes new Rect array to store data for assist code
             Rect[] visionTarget = new Rect[2];
+            Rect placeHolder = new Rect(0, 0, 1, 1);
+            visionTarget[0] = placeHolder;
+            visionTarget[1] = visionTarget[0];
 
             //TODO test if this is is necessary
             //Processes Image
