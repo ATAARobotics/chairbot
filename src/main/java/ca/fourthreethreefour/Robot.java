@@ -17,6 +17,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -69,7 +70,7 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
     ShuffleboardTab dashboardTab = Shuffleboard.getTab("Dashboard");
     
-    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
+    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", true).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
     
     NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
@@ -80,7 +81,6 @@ public class Robot extends TimedRobot implements Constants
     double TURN_CURVE;
     
     
-    
     NetworkTableEntry XBOXCONTROLLER_ENTRY = portsTab.addPersistent("XboxController", 0).getEntry();
     int XBOXCONTROLLER = (int) XBOXCONTROLLER_ENTRY.getDouble(0);
     NetworkTableEntry GEAR_MOTOR_ENTRY = portsTab.addPersistent("Gear Motor", 2).getEntry();
@@ -89,6 +89,10 @@ public class Robot extends TimedRobot implements Constants
     int LEFT_DRIVE_MOTOR = (int) LEFT_DRIVE_MOTOR_ENTRY.getDouble(1);
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
+
+    NetworkTableEntry VISION_VALUE_ENTRY_1 = outputTab.add("Vision Target 1", "test").getEntry();
+    NetworkTableEntry VISION_VALUE_ENTRY_2 = outputTab.add("Vision Target 2", "test").getEntry();
+    //NetworkTableEntry CONTOURS_DETECTED_BOOLEAN = outputTab.add("Countours Detected?", false).getEntry();
     
     //NetworkTableEntry CAMERA = dashboardTab.add(BuiltInWidgets.kCameraStream);
     
@@ -148,15 +152,18 @@ public class Robot extends TimedRobot implements Constants
             //If filter has nothing, send frame
             if (pipeline.filterContoursOutput().isEmpty()) {
                 outputStream.putFrame(source);
-                System.out.println("No Contours Detected");
+                Logging.put(VISION_VALUE_ENTRY_1, "None");
+                //System.out.println("No Contours Detected");
+                //Logging.put(CONTOURS_DETECTED_BOOLEAN, false);
             }
 
             //If there is only one target, make visionTarget use two of the same rectangle
             else if(pipeline.filterContoursOutput().size() == 1){
                 
                 //Prints Location of Rectangle
-                System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
-                
+                //System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
+                Logging.put(VISION_VALUE_ENTRY_1, "Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
+                //Logging.put(CONTOURS_DETECTED_BOOLEAN, true);
                 //sets up vision target
                 visionTarget[0] = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
                 visionTarget[1] = visionTarget[0];
@@ -194,6 +201,7 @@ public class Robot extends TimedRobot implements Constants
             Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
             Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
             //Send Frame
+            //Logging.put(CONTOURS_DETECTED_BOOLEAN, true);
             outputStream.putFrame(source);
             
             //Sends data
@@ -206,7 +214,6 @@ public class Robot extends TimedRobot implements Constants
         visionThread.start(); 
         
         //drive = new RobotDrive(1, 2);
-        
         // Sets the appropriate configuration settings for the motors
         
         if (RobotBase.isReal()) {
