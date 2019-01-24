@@ -67,6 +67,7 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
+    ShuffleboardTab dashboardTab = Shuffleboard.getTab("Dashboard");
     
     NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
@@ -88,6 +89,8 @@ public class Robot extends TimedRobot implements Constants
     int LEFT_DRIVE_MOTOR = (int) LEFT_DRIVE_MOTOR_ENTRY.getDouble(1);
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
+    
+    //NetworkTableEntry CAMERA = dashboardTab.add(BuiltInWidgets.kCameraStream);
     
     
     
@@ -112,7 +115,8 @@ public class Robot extends TimedRobot implements Constants
         // Initialize Camera with properties
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-        
+        dashboardTab.add(camera);
+
         //Initializes image Mat for modification
         Mat source = new Mat();
         
