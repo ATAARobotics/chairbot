@@ -151,7 +151,7 @@ public class Robot extends TimedRobot implements Constants
             else{
 
                 //Determines the two largest rectangles puts them in visionTarget
-                for (int i = 1; i < pipeline.filterContoursOutput().size();i++){
+                for (int i = 0; i < pipeline.filterContoursOutput().size();i++){
 
                     //Creates temporary object
                     Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
