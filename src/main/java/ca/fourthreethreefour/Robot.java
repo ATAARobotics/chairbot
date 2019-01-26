@@ -91,7 +91,9 @@ public class Robot extends TimedRobot implements Constants
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
     
-    
+    //Create Item on Shuffleboard to Adjust Camera Exposure
+    NetworkTableEntry CAMERAEXPOSURE_ENTRY = dynamicSettingsTab.addPersistent("Camera Exposure", 0).getEntry();
+    int CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
     
     @Override
     public void robotInit()
@@ -127,7 +129,12 @@ public class Robot extends TimedRobot implements Constants
         
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
-            
+
+            //Sets Camera Exposure with value from Shuffleboard
+            CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
+            System.out.println(CAMERAEXPOSURE);
+            camera.setExposureManual(CAMERAEXPOSURE);
+
             //Grabs frame for processing
             cvSink.grabFrame(source);
             
@@ -149,7 +156,7 @@ public class Robot extends TimedRobot implements Constants
 
             //If there is only one target, make visionTarget use two of the same rectangle
             else if(pipeline.filterContoursOutput().size() == 1){
-                
+                System.out.println(pipeline.filterContoursOutput().size());
                 //Prints Location of Rectangle
                 System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
                 
@@ -163,6 +170,7 @@ public class Robot extends TimedRobot implements Constants
 
                 //Determines the two largest rectangles puts them in visionTarget
                 for (int i = 1; i < pipeline.filterContoursOutput().size();i++){
+                    System.out.println(i);
 
                     //Creates temporary object
                     Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
@@ -183,7 +191,8 @@ public class Robot extends TimedRobot implements Constants
                         //Changes second largest target to current rectangles
                         visionTarget[1] = currentRectangle;
                     }
-                }
+                
+                } 
             }
             //TODO Remove below when done debugging
             //Draws rectangles
