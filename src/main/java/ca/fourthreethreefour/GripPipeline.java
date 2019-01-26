@@ -55,7 +55,7 @@ public class GripPipeline implements VisionPipeline {
 
 		// Step HSV_Threshold0:
 		Mat hsvThresholdInput = resizeImageOutput;
-		double[] hsvThresholdHue = {84, 113};
+		double[] hsvThresholdHue = {70, 130};
 		double[] hsvThresholdSaturation = {0.0, 255.0};
 		double[] hsvThresholdValue = {0.0, 255.0};
 		hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
@@ -78,9 +78,9 @@ public class GripPipeline implements VisionPipeline {
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
 		double filterContoursMinArea = 0.0;
 		double filterContoursMinPerimeter = 20.0;
-		double filterContoursMinWidth = 10.0;
+		double filterContoursMinWidth = 30.0;
 		double filterContoursMaxWidth = 1000.0;
-		double filterContoursMinHeight = 30.0;
+		double filterContoursMinHeight = 15.0;
 		double filterContoursMaxHeight = 1000.0;
 		double[] filterContoursSolidity = {0, 100};
 		double filterContoursMaxVertices = 300.0;
