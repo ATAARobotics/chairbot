@@ -7,9 +7,6 @@
 
 package ca.fourthreethreefour;
 
-import java.awt.Image;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -20,6 +17,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -34,6 +32,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.RobotBase;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -69,8 +68,9 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
+    ShuffleboardTab dashboardTab = Shuffleboard.getTab("Dashboard");
     
-    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
+    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", true).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
     
     NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
@@ -81,7 +81,6 @@ public class Robot extends TimedRobot implements Constants
     double TURN_CURVE;
     
     
-    
     NetworkTableEntry XBOXCONTROLLER_ENTRY = portsTab.addPersistent("XboxController", 0).getEntry();
     int XBOXCONTROLLER = (int) XBOXCONTROLLER_ENTRY.getDouble(0);
     NetworkTableEntry GEAR_MOTOR_ENTRY = portsTab.addPersistent("Gear Motor", 2).getEntry();
@@ -90,6 +89,12 @@ public class Robot extends TimedRobot implements Constants
     int LEFT_DRIVE_MOTOR = (int) LEFT_DRIVE_MOTOR_ENTRY.getDouble(1);
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
+
+    NetworkTableEntry VISION_VALUE_ENTRY_1 = outputTab.add("Vision Target 1", "test").getEntry();
+    NetworkTableEntry VISION_VALUE_ENTRY_2 = outputTab.add("Vision Target 2", "test").getEntry();
+    //NetworkTableEntry CONTOURS_DETECTED_BOOLEAN = outputTab.add("Countours Detected?", false).getEntry();
+    
+    //NetworkTableEntry CAMERA = dashboardTab.add(BuiltInWidgets.kCameraStream);
     
     
     
@@ -99,6 +104,7 @@ public class Robot extends TimedRobot implements Constants
         // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
         controller = new XboxController(XBOXCONTROLLER);
         
+        if (RobotBase.isReal()) {
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
         //rightDriveMotor1 = new WPI_TalonSRX(2);
@@ -108,11 +114,13 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+        }
         
         // Initialize Camera with properties
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-        
+        dashboardTab.add(camera);
+
         //Initializes image Mat for modification
         Mat source = new Mat();
         
@@ -144,7 +152,9 @@ public class Robot extends TimedRobot implements Constants
             //If filter has nothing, send frame
             if (pipeline.filterContoursOutput().isEmpty()) {
                 outputStream.putFrame(source);
-                System.out.println("No Contours Detected");
+                Logging.put(VISION_VALUE_ENTRY_1, "None");
+                //System.out.println("No Contours Detected");
+                //Logging.put(CONTOURS_DETECTED_BOOLEAN, false);
             }
 
             //Sorts rectangles into visionTarget where [0] is largest and [1] is second largest
@@ -179,6 +189,7 @@ public class Robot extends TimedRobot implements Constants
             Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
             Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
             //Send Frame
+            //Logging.put(CONTOURS_DETECTED_BOOLEAN, true);
             outputStream.putFrame(source);
             
             //Sends data
@@ -191,21 +202,26 @@ public class Robot extends TimedRobot implements Constants
         visionThread.start(); 
         
         //drive = new RobotDrive(1, 2);
-        
         // Sets the appropriate configuration settings for the motors
+        
+        if (RobotBase.isReal()) {
         leftSideDriveMotors.setInverted(true);
         rightSideDriveMotors.setInverted(true);
         robotDrive.setSafetyEnabled(true);
         robotDrive.setExpiration(0.1);
         robotDrive.setMaxOutput(0.80);
         gearMotor.setSafetyEnabled(true);
+        }
     }
     
     @Override
     public void autonomousInit()
     {
         // Enables motor safety for the drivetrain for teleop
+        
+        if (RobotBase.isReal()) {
         robotDrive.setSafetyEnabled(true);
+        }
         //gearMotor.setSafetyEnabled(true);
     }
     
@@ -221,8 +237,10 @@ public class Robot extends TimedRobot implements Constants
         double turn = controller.getX(GenericHID.Hand.kRight);
         turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
+        if (RobotBase.isReal()) {
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+        }
     }
     
     @Override
