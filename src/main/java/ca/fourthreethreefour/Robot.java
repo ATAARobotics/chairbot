@@ -153,6 +153,7 @@ public class Robot extends TimedRobot implements Constants
             if (pipeline.filterContoursOutput().isEmpty()) {
                 outputStream.putFrame(source);
                 Logging.put(VISION_VALUE_ENTRY_1, "None");
+                Logging.put(VISION_VALUE_ENTRY_2, "None");
                 //System.out.println("No Contours Detected");
                 //Logging.put(CONTOURS_DETECTED_BOOLEAN, false);
             }
@@ -185,7 +186,12 @@ public class Robot extends TimedRobot implements Constants
                 }
             }
             //TODO Remove below when done debugging
-            //Draws rectangles
+            //Draws rectangles	
+            Logging.put(VISION_VALUE_ENTRY_1, "X: " + visionTarget[0].x + " Y: " + visionTarget[0].y + 
+                " Dimensions: " + visionTarget[0].width + " x " + visionTarget[0].height);
+            Logging.put(VISION_VALUE_ENTRY_2, "X: " + visionTarget[1].x + " Y: " + visionTarget[1].y + 
+                " Dimensions: " + visionTarget[1].width + " x " + visionTarget[1].height);
+            //System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
             Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
             Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
             //Send Frame
