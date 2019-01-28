@@ -157,23 +157,11 @@ public class Robot extends TimedRobot implements Constants
                 //Logging.put(CONTOURS_DETECTED_BOOLEAN, false);
             }
 
-            //If there is only one target, make visionTarget use two of the same rectangle
-            else if(pipeline.filterContoursOutput().size() == 1){
-                
-                //Prints Location of Rectangle
-                //System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
-                Logging.put(VISION_VALUE_ENTRY_1, "Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
-                //Logging.put(CONTOURS_DETECTED_BOOLEAN, true);
-                //sets up vision target
-                visionTarget[0] = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-                visionTarget[1] = visionTarget[0];
-            }
-
             //Sorts rectangles into visionTarget where [0] is largest and [1] is second largest
             else{
 
                 //Determines the two largest rectangles puts them in visionTarget
-                for (int i = 1; i < pipeline.filterContoursOutput().size();i++){
+                for (int i = 0; i < pipeline.filterContoursOutput().size();i++){
 
                     //Creates temporary object
                     Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
