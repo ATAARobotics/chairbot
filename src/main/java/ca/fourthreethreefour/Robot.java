@@ -126,7 +126,6 @@ public class Robot extends TimedRobot implements Constants
         
         //Makes GripPipeline Object
         GripPipeline visionProcessing = new GripPipeline();
-        
 
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
@@ -194,29 +193,6 @@ public class Robot extends TimedRobot implements Constants
                             secondIndex = i;
                         }
                     }
-                    //Remove rectangles except for ones at our indexes
-                    /*for(int i = 0; i < rectList.size();i++){
-                        //If index tries to find third Largest rectangle, break
-                        if(i == 2){
-                            break;
-                        }
-                        //if our index hits one of our targets, draw the target
-                        if(i == largestIndex ||i == secondIndex){
-                            //Draws rectangle if it matches with either index
-                            Imgproc.rectangle(source, new Point(rectList.get(i).x, rectList.get(i).y), new Point(rectList.get(i).x + rectList.get(i).width, rectList.get(i).y + rectList.get(i).height), new Scalar(0,0,255), 2);
-                        }
-                        //if all checks fail,
-                        else{
-                            //Finds rectangle
-                            Rect r = rectList.get(i);
-                            //Removes Rectangle from List
-                            rectList.remove(r);
-                            //Decrements all of our counters
-                            largestIndex--;
-                            secondIndex--;
-                            i--;
-                        }
-                    }*/
                 }
                 //TODO Remove below when done debugging
 
