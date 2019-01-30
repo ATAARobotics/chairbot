@@ -148,6 +148,8 @@ public class Robot extends TimedRobot implements Constants
             //TODO test if this is is necessary
             //Processes Image
             visionProcessing.process(source);
+
+            System.out.println(pipeline.filterContoursOutput().size());
             
             //If filter has nothing, send frame
             if (!pipeline.filterContoursOutput().isEmpty()) {
@@ -171,7 +173,11 @@ public class Robot extends TimedRobot implements Constants
                     //Sets up Indices For rectangle index holding
                     int largestIndex = 0;
                     int secondIndex = 0;
-
+                    
+                    if(rectList.size() == 2){
+                        visionTarget[0] = rectList.get(0);
+                        visionTarget[1] = rectList.get(1);
+                    }
                     //If there is only one target, make our Vision target two of our same rectangle
                     if(rectList.size() == 1){
                         visionTarget[0] = rectList.get(0);
