@@ -14,18 +14,7 @@ import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -40,16 +29,17 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.TimedRobot;
+
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.PathfinderFRC;
 import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.modifiers.TankModifier;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
 {
-    // Initialize an Xbox 360 controller to control the robot
-    private XboxController controller;
     
     // Initialize the drivetrain motors
     private WPI_TalonSRX gearMotor;
@@ -63,16 +53,7 @@ public class Robot extends TimedRobot implements Constants
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
     
-    // Vision Proccessing
-    private static final int IMG_WIDTH = 320;
-    private static final int IMG_HEIGHT = 240;
-    private VisionThread visionThread;
-    
-    //TODO use below values when driver assit code is ready to be added
-    //private double centerX = 0.0;
-    //private double centerY = 0.0;
-	private final Object imgLock = new Object();
-    
+
     // Ultrasonic goes here
     
     
@@ -101,13 +82,28 @@ public class Robot extends TimedRobot implements Constants
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
     
-    
+    private static final int k_ticks_per_rev = 1024;
+    private static final double k_wheel_diameter = 7;
+    private static final double k_max_velocity = 2;
+    private static final int k_left_channel = 0;
+    private static final int k_right_channel = 1;
+    private static final int k_left_encoder_port_a = 0;
+    private static final int k_left_encoder_port_b = 1;
+    private static final int k_right_encoder_port_a = 2;
+    private static final int k_right_encoder_port_b = 3;
+    private static final String pathName = "Path1";
+    private Encoder leftEncoder;
+    private Encoder rightEncoder;
+    private AnalogGyro m_gyro;
+
+    private EncoderFollower leftFollower;
+    private EncoderFollower rightFollower;
+    private Notifier m_follower_notifier;
+
     
     @Override
     public void robotInit()
     {
-        // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
-        controller = new XboxController(XBOXCONTROLLER);
         
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
@@ -118,37 +114,61 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+        leftEncoder = new Encoder(k_left_encoder_port_a, k_left_encoder_port_b);
+        rightEncoder = new Encoder(k_right_encoder_port_a, k_right_encoder_port_b);
+
 
 
         //drive = new RobotDrive(1, 2);
         
         // Sets the appropriate configuration settings for the motors
-        leftSideDriveMotors.setInverted(true);
+        leftSideDriveMotors.setInverted(true);  
         rightSideDriveMotors.setInverted(true);
         robotDrive.setSafetyEnabled(true);
-        robotDrive.setExpiration(0.1);
+        //robotDrive.setExpiration(0.1);
         robotDrive.setMaxOutput(0.80);
         gearMotor.setSafetyEnabled(true);
+        
     }
     
     @Override
     public void autonomousInit()
     {
-        // Enables motor safety for the drivetrain for teleop
         robotDrive.setSafetyEnabled(true);
-        //gearMotor.setSafetyEnabled(true);
-     
-        //Generates a waypoint for the robot to travel though
-        Waypoint[] waypoints = new Waypoint[] {
-                new Waypoint(-4, -1, Pathfinder.d2r(-45)),
-                new Waypoint(-2, -2, 0),
-                new Waypoint(0, 0, 0)
-        };
-        //generates a trajectory
-        Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60.0);
-        Trajectory trajectory = Pathfinder.generate(waypoints, config);
-     
+        //Left and Right defineitions are switched due to a known bug.
+        //TODO: Add trajectory files in the appropriate directory
+        Trajectory leftTrajectory = PathfinderFRC.getTrajectory(pathName + ".right");
+        //Creates a trajectory object called "left_trajectory," from a file pathname.right
+        Trajectory rightTrajectory = PathfinderFRC.getTrajectory(pathName + ".left");
+        //Creates a trajectory object called "rightTrajectory," from a file pathname.left
+
+        //Creates two EncoderFollower objects corrosponding to their respective trajectories
+        leftFollower = new EncoderFollower(leftTrajectory);
+        rightFollower = new EncoderFollower(rightTrajectory);
+    
+        //Configures the encoder for the left side for use with EncoderFollower
+        leftFollower.configureEncoder(leftEncoder.get(), k_ticks_per_rev, k_wheel_diameter);
+        leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1 / k_max_velocity, 0);
+    
+        //Configures the encoder for the right side for use with EncoderFollower
+        rightFollower.configureEncoder(rightEncoder.get(), k_ticks_per_rev, k_wheel_diameter);
+        rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1 / k_max_velocity, 0);
         
+        
+        m_follower_notifier = new Notifier(this::followPath);
+        m_follower_notifier.startPeriodic(leftTrajectory.get(0).dt);
+        m_follower_notifier.startPeriodic(rightTrajectory.get(0).dt);
+
+      
+        // Enables motor safety for the drivetrain for teleop
+        
+        //gearMotor.setSafetyEnabled(true);
+
+
+        
+
+
+ 
         
 };
 
@@ -156,9 +176,7 @@ public class Robot extends TimedRobot implements Constants
     
     @Override
     public void autonomousPeriodic(){
-  
         
-
     
     }
 
@@ -166,12 +184,10 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void teleopPeriodic()
     {
-        double speed = controller.getY(GenericHID.Hand.kLeft);
-        double turn = controller.getX(GenericHID.Hand.kRight);
-        turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
-        // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
-        robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
-        gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+        m_follower_notifier.stop();
+        leftSideDriveMotors.set(0);
+        rightSideDriveMotors.set(0);
+
     }
     
     @Override
@@ -191,4 +207,20 @@ public class Robot extends TimedRobot implements Constants
         DRIVE_COMPENSATION = DRIVE_COMPENSATION_ENTRY.getDouble(0);
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
+
+    private void followPath() {
+        if (leftFollower.isFinished() || rightFollower.isFinished()) {
+            m_follower_notifier.stop();
+            } else {
+            double left_speed = leftFollower.calculate(leftEncoder.get());
+            double right_speed = rightFollower.calculate(rightEncoder.get());
+            double heading = m_gyro.getAngle();
+            double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
+            double heading_difference = Pathfinder.boundHalfDegrees(desired_heading - heading);
+            double turn = 0.8 * (-1.0/80.0) * heading_difference;
+            leftSideDriveMotors.set(left_speed + turn);
+            rightSideDriveMotors.set(right_speed - turn);
+            }
+    }
+
 }
