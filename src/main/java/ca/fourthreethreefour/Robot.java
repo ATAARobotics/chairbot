@@ -26,6 +26,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -57,6 +58,9 @@ public class Robot extends TimedRobot implements Constants
     private static final int IMG_WIDTH = 320;
     private static final int IMG_HEIGHT = 240;
     private VisionThread visionThread;
+    private double centerX = 0.0;
+    Rect[] visionTarget = new Rect[2];
+
     
     //TODO use below values when driver assit code is ready to be added
     //private double centerX = 0.0;
@@ -127,20 +131,19 @@ public class Robot extends TimedRobot implements Constants
         //Makes GripPipeline Object
         GripPipeline visionProcessing = new GripPipeline();
         
-
+        
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
 
             //Sets Camera Exposure with value from Shuffleboard
             CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
-            System.out.println(CAMERAEXPOSURE);
+            //System.out.println(CAMERAEXPOSURE);
             camera.setExposureManual(CAMERAEXPOSURE);
 
             //Grabs frame for processing
             cvSink.grabFrame(source);
             
             //Initializes new Rect array to store data for assist code
-            Rect[] visionTarget = new Rect[2];
             Rect placeHolder = new Rect(0, 0, 1, 1);
             visionTarget[0] = placeHolder;
             visionTarget[1] = visionTarget[0];
@@ -149,8 +152,6 @@ public class Robot extends TimedRobot implements Constants
             //Processes Image
             visionProcessing.process(source);
 
-            System.out.println(pipeline.filterContoursOutput().size());
-            
             //If filter has nothing, send frame
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
@@ -289,6 +290,20 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
+        double centerX;
+        synchronized (imgLock) {
+            centerX = visionTarget[0].x + (visionTarget[0].width / 2);
+        }
+        if (visionTarget[0] == null){
+            return;
+        }else {
+            double turn = 0;
+            turn = centerX - (IMG_WIDTH / 2);
+            System.out.println(turn);
+            robotDrive.arcadeDrive(-0.6, turn * 0.005);
+        }
+        //double turn = centerX - (IMG_WIDTH / 2);
+       
     }
     
     @Override
@@ -319,4 +334,16 @@ public class Robot extends TimedRobot implements Constants
         DRIVE_COMPENSATION = DRIVE_COMPENSATION_ENTRY.getDouble(0);
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
+
+    private static final int visionLineUpOffThreshold = 2;
+
+    /*public void autoLineUp(int targetLocation) {
+        while(targetLocation < (IMG_WIDTH - visionLineUpOffThreshold)){
+            
+        }
+        while(targetLocation > (IMG_WIDTH + visionLineUpOffThreshold)){
+
+        }
+    }
+    */
 }
