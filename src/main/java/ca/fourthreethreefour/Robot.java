@@ -133,8 +133,8 @@ public class Robot extends TimedRobot implements Constants
 
             //Sets Camera Exposure with value from Shuffleboard
             CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
-            //System.out.println(CAMERAEXPOSURE);
-            //camera.setExposureManual(CAMERAEXPOSURE);
+            System.out.println(CAMERAEXPOSURE);
+            camera.setExposureManual(CAMERAEXPOSURE);
 
             //Grabs frame for processing
             cvSink.grabFrame(source);
