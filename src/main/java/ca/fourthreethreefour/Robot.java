@@ -26,6 +26,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -57,6 +58,9 @@ public class Robot extends TimedRobot implements Constants
     private static final int IMG_WIDTH = 320;
     private static final int IMG_HEIGHT = 240;
     private VisionThread visionThread;
+    private double centerX = 0.0;
+    Rect[] visionTarget = new Rect[2];
+
     
     //TODO use below values when driver assit code is ready to be added
     //private double centerX = 0.0;
@@ -126,20 +130,20 @@ public class Robot extends TimedRobot implements Constants
         
         //Makes GripPipeline Object
         GripPipeline visionProcessing = new GripPipeline();
-
+        
+        
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
 
             //Sets Camera Exposure with value from Shuffleboard
             CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
-            System.out.println(CAMERAEXPOSURE);
+            //System.out.println(CAMERAEXPOSURE);
             camera.setExposureManual(CAMERAEXPOSURE);
 
             //Grabs frame for processing
             cvSink.grabFrame(source);
             
             //Initializes new Rect array to store data for assist code
-            Rect[] visionTarget = new Rect[2];
             Rect placeHolder = new Rect(0, 0, 1, 1);
             visionTarget[0] = placeHolder;
             visionTarget[1] = visionTarget[0];
@@ -147,7 +151,7 @@ public class Robot extends TimedRobot implements Constants
             //TODO test if this is is necessary
             //Processes Image
             visionProcessing.process(source);
-            
+
             //If filter has nothing, send frame
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
@@ -170,7 +174,11 @@ public class Robot extends TimedRobot implements Constants
                     //Sets up Indices For rectangle index holding
                     int largestIndex = 0;
                     int secondIndex = 0;
-
+                    
+                    if(rectList.size() == 2){
+                        visionTarget[0] = rectList.get(0);
+                        visionTarget[1] = rectList.get(1);
+                    }
                     //If there is only one target, make our Vision target two of our same rectangle
                     if(rectList.size() == 1){
                         visionTarget[0] = rectList.get(0);
@@ -193,6 +201,29 @@ public class Robot extends TimedRobot implements Constants
                             secondIndex = i;
                         }
                     }
+                    //Remove rectangles except for ones at our indexes
+                    /*for(int i = 0; i < rectList.size();i++){
+                        //If index tries to find third Largest rectangle, break
+                        if(i == 2){
+                            break;
+                        }
+                        //if our index hits one of our targets, draw the target
+                        if(i == largestIndex ||i == secondIndex){
+                            //Draws rectangle if it matches with either index
+                            Imgproc.rectangle(source, new Point(rectList.get(i).x, rectList.get(i).y), new Point(rectList.get(i).x + rectList.get(i).width, rectList.get(i).y + rectList.get(i).height), new Scalar(0,0,255), 2);
+                        }
+                        //if all checks fail,
+                        else{
+                            //Finds rectangle
+                            Rect r = rectList.get(i);
+                            //Removes Rectangle from List
+                            rectList.remove(r);
+                            //Decrements all of our counters
+                            largestIndex--;
+                            secondIndex--;
+                            i--;
+                        }
+                    }*/
                 }
                 //TODO Remove below when done debugging
 
@@ -259,6 +290,20 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
+        double centerX;
+        synchronized (imgLock) {
+            centerX = visionTarget[0].x + (visionTarget[0].width / 2);
+        }
+        if (visionTarget[0] == null){
+            return;
+        }else {
+            double turn = 0;
+            turn = centerX - (IMG_WIDTH / 2);
+            System.out.println(turn);
+            robotDrive.arcadeDrive(-0.6, turn * 0.005);
+        }
+        //double turn = centerX - (IMG_WIDTH / 2);
+       
     }
     
     @Override
@@ -289,4 +334,16 @@ public class Robot extends TimedRobot implements Constants
         DRIVE_COMPENSATION = DRIVE_COMPENSATION_ENTRY.getDouble(0);
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
+
+    private static final int visionLineUpOffThreshold = 2;
+
+    /*public void autoLineUp(int targetLocation) {
+        while(targetLocation < (IMG_WIDTH - visionLineUpOffThreshold)){
+            
+        }
+        while(targetLocation > (IMG_WIDTH + visionLineUpOffThreshold)){
+
+        }
+    }
+    */
 }
