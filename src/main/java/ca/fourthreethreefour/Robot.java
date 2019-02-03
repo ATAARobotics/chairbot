@@ -11,6 +11,7 @@ import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -144,7 +145,7 @@ public class Robot extends TimedRobot implements Constants
             cvSink.grabFrame(source);
             
             //Initializes new Rect array to store data for assist code
-            Rect placeHolder = new Rect(0, 0, 1, 1);
+            Rect placeHolder = new Rect(0, 0, 0, 0);
             visionTarget[0] = placeHolder;
             visionTarget[1] = visionTarget[0];
 
@@ -251,6 +252,8 @@ public class Robot extends TimedRobot implements Constants
             } else {
                 outputStream.putFrame(source);
                 System.out.println("No Contours Detected");
+                visionTarget[0] = new Rect(0,0,0,0);
+                visionTarget[1] = new Rect(0,0,0,0);
             }
             //TODO Remove below when done debugging
             //Draws rectangles
@@ -290,17 +293,27 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
+        //Driver Assist with Vision - Auto Line Up with Single Reflector:
         double centerX;
         synchronized (imgLock) {
+            //Get position of single target
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);
         }
         if (visionTarget[0] == null){
             return;
-        }else {
+        } else {
             double turn = 0;
+            //Calculate Turn
             turn = centerX - (IMG_WIDTH / 2);
             System.out.println(turn);
+            //Move Robot
             robotDrive.arcadeDrive(-0.6, turn * 0.005);
+            try {
+                //3 Second Time Delay
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                System.out.println("The Delay Failed.... This is problematic...");
+            }
         }
         //double turn = centerX - (IMG_WIDTH / 2);
        
@@ -335,15 +348,4 @@ public class Robot extends TimedRobot implements Constants
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
 
-    private static final int visionLineUpOffThreshold = 2;
-
-    /*public void autoLineUp(int targetLocation) {
-        while(targetLocation < (IMG_WIDTH - visionLineUpOffThreshold)){
-            
-        }
-        while(targetLocation > (IMG_WIDTH + visionLineUpOffThreshold)){
-
-        }
-    }
-    */
 }
