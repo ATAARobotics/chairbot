@@ -55,7 +55,7 @@ public class VisionAlignment{
     NetworkTableEntry CAMERAEXPOSURE_ENTRY = dynamicSettingsTab.addPersistent("Camera Exposure", 0).getEntry();
     int CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
 
-    public Vision(){
+    public VisionAlignment(){
         // Initialize Camera with properties
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
