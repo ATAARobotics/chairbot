@@ -308,12 +308,13 @@ public class Robot extends TimedRobot implements Constants
             System.out.println(turn);
             //Move Robot
             robotDrive.arcadeDrive(-0.6, turn * 0.005);
-            try {
+            /*try {
                 //3 Second Time Delay
                 TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
                 System.out.println("The Delay Failed.... This is problematic...");
             }
+            */
         }
         //double turn = centerX - (IMG_WIDTH / 2);
        
