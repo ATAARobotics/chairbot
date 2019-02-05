@@ -7,13 +7,18 @@
 
 package ca.fourthreethreefour;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
@@ -35,8 +40,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.RobotBase;
 
 // If you rename or move this class, update the build.properties file in the project root
-public class Robot extends TimedRobot implements Constants
-{
+public class Robot extends TimedRobot implements Constants {
     // Initialize an Xbox 360 controller to control the robot
     private XboxController controller;
     
@@ -57,13 +61,12 @@ public class Robot extends TimedRobot implements Constants
     private static final int IMG_HEIGHT = 240;
     private VisionThread visionThread;
     
-    //TODO use below values when driver assit code is ready to be added
-    //private double centerX = 0.0;
-    //private double centerY = 0.0;
-	private final Object imgLock = new Object();
+    // TODO use below values when driver assit code is ready to be added
+    // private double centerX = 0.0;
+    // private double centerY = 0.0;
+    private final Object imgLock = new Object();
     
     // Ultrasonic goes here
-    
     
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
@@ -73,11 +76,14 @@ public class Robot extends TimedRobot implements Constants
     NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", true).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
     
-    NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+    NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1)
+    .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
     double DRIVE_SPEED;
-    NetworkTableEntry DRIVE_COMPENSATION_ENTRY = dynamicSettingsTab.addPersistent("Drive Compensation", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
+    NetworkTableEntry DRIVE_COMPENSATION_ENTRY = dynamicSettingsTab.addPersistent("Drive Compensation", 0)
+    .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
     double DRIVE_COMPENSATION;
-    NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
+    NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5)
+    .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
     double TURN_CURVE;
     
     
@@ -97,20 +103,20 @@ public class Robot extends TimedRobot implements Constants
     //NetworkTableEntry CAMERA = dashboardTab.add(BuiltInWidgets.kCameraStream);
     
     
-    
     @Override
-    public void robotInit()
-    {
-        // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
+    public void robotInit() {
+        // Assigns all the motors to their respective objects (the number in brackets is
+        // the port # of what is connected where)
         controller = new XboxController(XBOXCONTROLLER);
         
         if (RobotBase.isReal()) {
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
-        //rightDriveMotor1 = new WPI_TalonSRX(2);
+        // rightDriveMotor1 = new WPI_TalonSRX(2);
         rightDriveMotor = new WPI_TalonSRX(RIGHT_DRIVE_MOTOR);
         
-        // Assigns the drivetrain motors to their respective motor controller group and then passes them on to the drivetrain controller object
+        // Assigns the drivetrain motors to their respective motor controller group and
+        // then passes them on to the drivetrain controller object
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
@@ -125,32 +131,33 @@ public class Robot extends TimedRobot implements Constants
         //Initializes image Mat for modification
         Mat source = new Mat();
         
-        //Starts CvSink to capture Mats
+        // Starts CvSink to capture Mats
         CvSink cvSink = CameraServer.getInstance().getVideo();
         
-        //TODO remove once debugging is done
+        // TODO remove once debugging is done
         CvSource outputStream = CameraServer.getInstance().putVideo("Image Analysis", IMG_WIDTH, IMG_HEIGHT);
         
-        //Makes GripPipeline Object
+        // Makes GripPipeline Object
         GripPipeline visionProcessing = new GripPipeline();
         
-        //Configures vision Thread
+        // Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
             
-            //Grabs frame for processing
+            // Grabs frame for processing
             cvSink.grabFrame(source);
             
-            //Initializes new Rect array to store data for assist code
-            Rect[] visionTarget = new Rect[2];
-            Rect placeHolder = new Rect(0, 0, 1, 1);
+            // Initializes new Rect array to store data for assist code
+            RotatedRect[] visionTarget = new RotatedRect[2];
+            RotatedRect placeHolder = new RotatedRect();
             visionTarget[0] = placeHolder;
             visionTarget[1] = visionTarget[0];
-
-            //TODO test if this is is necessary
-            //Processes Image
+            
+            // TODO test if this is is necessary
+            // Processes Image
             visionProcessing.process(source);
             
-            //If filter has nothing, send frame
+            
+            // If filter has nothing, send frame
             if (pipeline.filterContoursOutput().isEmpty()) {
                 outputStream.putFrame(source);
                 Logging.put(VISION_VALUE_ENTRY_1, "None");
@@ -158,43 +165,56 @@ public class Robot extends TimedRobot implements Constants
                 //System.out.println("No Contours Detected");
                 //Logging.put(CONTOURS_DETECTED_BOOLEAN, false);
             }
+            
+            // Sorts rectangles into visionTarget where [0] is largest and [1] is second
+            // largest
+            else {
+                
+                // Determines the two largest rectangles puts them in visionTarget
+                for (int i = 0; i < pipeline.filterContoursOutput().size(); i++) {
+                    
+                    MatOfPoint mop = pipeline.filterContoursOutput().get(i);
+                    MatOfPoint2f mop2f = new MatOfPoint2f();
 
-            //Sorts rectangles into visionTarget where [0] is largest and [1] is second largest
-            else{
-
-                //Determines the two largest rectangles puts them in visionTarget
-                for (int i = 0; i < pipeline.filterContoursOutput().size();i++){
-
-                    //Creates temporary object
-                    Rect currentRectangle = Imgproc.boundingRect(pipeline.filterContoursOutput().get(i));
+                    mop2f.fromArray(mop.toArray());
+                    // Creates temporary object
+                    RotatedRect currentRectangle = Imgproc.minAreaRect(mop2f);
                     
                     //If the current rectangle is larger than our largest
-                    if(visionTarget[0].area() < currentRectangle.area()){
-
+                    if(currentRectangle.size.area() > visionTarget[0].size.area()){
+                        
                         //Changes largest target to second largest
                         visionTarget[1] = visionTarget[0];
-
+                        
                         //Changes largest target to current target
                         visionTarget[0] = currentRectangle;
                     }
-
+                    
                     //If the current rectangle is larger thanm the second largest
-                    else if(visionTarget[1].area() < currentRectangle.area()){
-
+                    else if(currentRectangle.size.area() > visionTarget[1].size.area()){
+                        
                         //Changes second largest target to current rectangles
                         visionTarget[1] = currentRectangle;
                     }
                 }
             }
             //TODO Remove below when done debugging
-            //Draws rectangles	
             Logging.put(VISION_VALUE_ENTRY_1, "X: " + visionTarget[0].x + " Y: " + visionTarget[0].y + 
                 " Dimensions: " + visionTarget[0].width + " x " + visionTarget[0].height);
             Logging.put(VISION_VALUE_ENTRY_2, "X: " + visionTarget[1].x + " Y: " + visionTarget[1].y + 
                 " Dimensions: " + visionTarget[1].width + " x " + visionTarget[1].height);
-            //System.out.println("Object 1: " + Imgproc.boundingRect(pipeline.filterContoursOutput().get(0)).toString());
-            Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
-            Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
+            //Draws rectangles
+            //Imgproc.rectangle(source, new Point(visionTarget[0].x, visionTarget[0].y), new Point(visionTarget[0].x + visionTarget[0].width, visionTarget[0].y + visionTarget[0].height), new Scalar(0,0,255), 2);
+            //Imgproc.rectangle(source, new Point(visionTarget[1].x, visionTarget[1].y), new Point(visionTarget[1].x + visionTarget[1].width, visionTarget[1].y + visionTarget[1].height), new Scalar(0,0,255), 2);
+            List<MatOfPoint> boxPoints = new LinkedList<MatOfPoint>();
+            MatOfPoint boxPoint = new MatOfPoint();
+            Imgproc.boxPoints(visionTarget[0], boxPoint);
+            boxPoints.add(boxPoint);
+            Imgproc.drawContours(source, boxPoints, 0, new Scalar(0,0,255));
+            boxPoints.clear();
+            Imgproc.boxPoints(visionTarget[1], boxPoint);
+            boxPoints.add(boxPoint);
+            Imgproc.drawContours(source, boxPoints, 0, new Scalar(0,0,255));
             //Send Frame
             //Logging.put(CONTOURS_DETECTED_BOOLEAN, true);
             outputStream.putFrame(source);
