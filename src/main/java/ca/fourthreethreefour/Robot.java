@@ -21,6 +21,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -28,6 +29,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.RobotDrive;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -36,6 +38,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -54,7 +57,7 @@ public class Robot extends TimedRobot implements Constants
     private SpeedControllerGroup leftSideDriveMotors;
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
-    
+
     // Vision Proccessing
     private static final int IMG_WIDTH = 320;
     private static final int IMG_HEIGHT = 240;
@@ -96,10 +99,8 @@ public class Robot extends TimedRobot implements Constants
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
     
-    //Create Item on Shuffleboard to Adjust Camera Exposure
-    NetworkTableEntry CAMERAEXPOSURE_ENTRY = dynamicSettingsTab.addPersistent("Camera Exposure", 0).getEntry();
-    int CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
-    
+    GripPipeline globalPipeline;
+
     @Override
     public void robotInit()
     {
@@ -136,10 +137,10 @@ public class Robot extends TimedRobot implements Constants
         //Configures vision Thread
         visionThread = new VisionThread(camera, visionProcessing, pipeline -> {
 
+            globalPipeline = pipeline;
+
             //Sets Camera Exposure with value from Shuffleboard
-            CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
-            //System.out.println(CAMERAEXPOSURE);
-            camera.setExposureManual(CAMERAEXPOSURE);
+            camera.setExposureManual(0);
 
             //Grabs frame for processing
             cvSink.grabFrame(source);
@@ -152,7 +153,7 @@ public class Robot extends TimedRobot implements Constants
             //TODO test if this is is necessary
             //Processes Image
             visionProcessing.process(source);
-
+            
             //If filter has nothing, send frame
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
@@ -299,22 +300,13 @@ public class Robot extends TimedRobot implements Constants
             //Get position of single target
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);
         }
-        if (visionTarget[0] == null){
-            return;
-        } else {
+        if (!globalPipeline.filterContoursOutput().isEmpty()){
             double turn = 0;
             //Calculate Turn
             turn = centerX - (IMG_WIDTH / 2);
             System.out.println(turn);
             //Move Robot
             robotDrive.arcadeDrive(-0.6, turn * 0.005);
-            /*try {
-                //3 Second Time Delay
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
-                System.out.println("The Delay Failed.... This is problematic...");
-            }
-            */
         }
         //double turn = centerX - (IMG_WIDTH / 2);
        
