@@ -31,9 +31,11 @@ import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.RobotDrive;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -100,6 +102,11 @@ public class Robot extends TimedRobot implements Constants
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
     
     GripPipeline globalPipeline;
+
+    //LED_Relay Control
+    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
+    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
+    Relay ledRelay = new Relay(0);
 
     @Override
     public void robotInit()
@@ -294,6 +301,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
+        ledRelay.set(Value.kOn);
         //Driver Assist with Vision - Auto Line Up with Single Reflector:
         double centerX;
         synchronized (imgLock) {
@@ -321,6 +329,13 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+
+        //Update Status of LED RELAY
+        if(LEDRELAY){
+            ledRelay.set(Value.kOn);
+        } else {
+            ledRelay.set(Value.kOff);
+        }
     }
     
     @Override
