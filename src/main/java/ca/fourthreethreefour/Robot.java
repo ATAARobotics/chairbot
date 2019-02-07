@@ -74,11 +74,11 @@ public class Robot extends TimedRobot implements Constants
     double DRIVE_SPEED;
     NetworkTableEntry DRIVE_COMPENSATION_ENTRY = dynamicSettingsTab.addPersistent("Drive Compensation", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
     double DRIVE_COMPENSATION;
-    NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
+    NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kToggleSwitch).withProperties(Map.of("min", 1, "max", 10)).getEntry();
     double TURN_CURVE;
 
     //LED_Relay Control
-    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
+    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
     Relay ledRelay = new Relay(0);
     
@@ -145,10 +145,13 @@ public class Robot extends TimedRobot implements Constants
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
          //Update Status of LED RELAY
+         LEDRELAY = LEDRELAY_ENTRY.getBoolean(false);
          if(LEDRELAY){
             ledRelay.set(Value.kForward);
+
         } else {
-            ledRelay.set(Value.kReverse);
+            ledRelay.set(Value.kOff);
+
         }
     }
     
