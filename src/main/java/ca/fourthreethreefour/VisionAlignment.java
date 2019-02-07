@@ -20,6 +20,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -37,13 +39,11 @@ public class VisionAlignment{
      private double centerX = 0.0;
      Rect[] visionTarget = new Rect[2];
 
-     private SpeedControllerGroup leftSideDriveMotors;
-     private SpeedControllerGroup rightSideDriveMotors;
+
      private DifferentialDrive robotDrive;
  
      
      //TODO use below values when driver assit code is ready to be added
-     //private double centerX = 0.0;
      private List<Rect> rectList = new LinkedList<Rect>();
      private final Object imgLock = new Object();
 
@@ -51,11 +51,20 @@ public class VisionAlignment{
      ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
      ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
 
+     //LED_Relay Control
+    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
+    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
+    Relay ledRelay = new Relay(0);
+
       //Create Item on Shuffleboard to Adjust Camera Exposure
     NetworkTableEntry CAMERAEXPOSURE_ENTRY = dynamicSettingsTab.addPersistent("Camera Exposure", 0).getEntry();
     int CAMERAEXPOSURE = (int) CAMERAEXPOSURE_ENTRY.getDouble(50);
 
-    public VisionAlignment(){
+    public VisionAlignment(SpeedControllerGroup leftDriveMotors, SpeedControllerGroup rightDriveMotors){
+
+    
+        robotDrive = new DifferentialDrive(leftDriveMotors, rightDriveMotors);
+
         // Initialize Camera with properties
         UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
@@ -128,44 +137,22 @@ public class VisionAlignment{
                     //Removes Rectangles from List only if there's more than two rectangles
                     else if(rectList.size() > 2){
                     //Determines the two largest rectangles and indexes them
-                    for (int i = 1; i < rectList.size();i++){
-                        //If the current rectangle is larger than our largest
-                        if(rectList.get(largestIndex).area()<rectList.get(i).area()){
-                            visionTarget[1] = visionTarget[0];
-                            secondIndex = largestIndex;
-                            visionTarget[0] = rectList.get(i);
-                            largestIndex = i;
-                        }
-                        //If the current rectangle is larger thanm the second largest
-                        else if(rectList.get(secondIndex).area()<rectList.get(i).area()){
-                            visionTarget[1] = rectList.get(i);
-                            secondIndex = i;
+                        for (int i = 1; i < rectList.size();i++){
+                            //If the current rectangle is larger than our largest
+                            if(rectList.get(largestIndex).area()<rectList.get(i).area()){
+                                visionTarget[1] = visionTarget[0];
+                                secondIndex = largestIndex;
+                                visionTarget[0] = rectList.get(i);
+                                largestIndex = i;
+                            }
+                            //If the current rectangle is larger thanm the second largest
+                            else if(rectList.get(secondIndex).area()<rectList.get(i).area()){
+                                visionTarget[1] = rectList.get(i);
+                                secondIndex = i;
+                            }
                         }
                     }
-                    //Remove rectangles except for ones at our indexes
-                    /*for(int i = 0; i < rectList.size();i++){
-                        //If index tries to find third Largest rectangle, break
-                        if(i == 2){
-                            break;
-                        }
-                        //if our index hits one of our targets, draw the target
-                        if(i == largestIndex ||i == secondIndex){
-                            //Draws rectangle if it matches with either index
-                            Imgproc.rectangle(source, new Point(rectList.get(i).x, rectList.get(i).y), new Point(rectList.get(i).x + rectList.get(i).width, rectList.get(i).y + rectList.get(i).height), new Scalar(0,0,255), 2);
-                        }
-                        //if all checks fail,
-                        else{
-                            //Finds rectangle
-                            Rect r = rectList.get(i);
-                            //Removes Rectangle from List
-                            rectList.remove(r);
-                            //Decrements all of our counters
-                            largestIndex--;
-                            secondIndex--;
-                            i--;
-                        }
-                    }*/
-                }
+                   
                 //TODO Remove below when done debugging
 
                 //Draws rectangles
@@ -208,11 +195,9 @@ public class VisionAlignment{
         
         //starts vision thread
         visionThread.start(); 
-        
-        //drive = new RobotDrive(1, 2);
-    }
-    
-    public void align(){
+ 
+    } public void align(){
+        ledRelay.set(Value.kOn);
         double centerX;
         synchronized (imgLock) {
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);

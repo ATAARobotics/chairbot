@@ -27,6 +27,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -74,8 +76,11 @@ public class Robot extends TimedRobot implements Constants
     double DRIVE_COMPENSATION;
     NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
     double TURN_CURVE;
-    
-    
+
+    //LED_Relay Control
+    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
+    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
+    Relay ledRelay = new Relay(0);
     
     NetworkTableEntry XBOXCONTROLLER_ENTRY = portsTab.addPersistent("XboxController", 0).getEntry();
     int XBOXCONTROLLER = (int) XBOXCONTROLLER_ENTRY.getDouble(0);
@@ -104,7 +109,8 @@ public class Robot extends TimedRobot implements Constants
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
 
-        visionCamera = new VisionAlignment();
+        //creates new vision object(in testing)
+        visionCamera = new VisionAlignment(leftSideDriveMotors, rightSideDriveMotors);
 
         // Sets the appropriate configuration settings for the motors
         leftSideDriveMotors.setInverted(true);
@@ -138,6 +144,12 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+         //Update Status of LED RELAY
+         if(LEDRELAY){
+            ledRelay.set(Value.kOn);
+        } else {
+            ledRelay.set(Value.kOff);
+        }
     }
     
     @Override
