@@ -104,8 +104,8 @@ public class Robot extends TimedRobot implements Constants
     GripPipeline globalPipeline;
 
     //LED_Relay Control
-    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
-    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
+    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
+    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(false);
     Relay ledRelay = new Relay(0);
 
     @Override
@@ -301,7 +301,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
-        ledRelay.set(Value.kOn);
+        ledRelay.set(Value.kForward);
         //Driver Assist with Vision - Auto Line Up with Single Reflector:
         double centerX;
         synchronized (imgLock) {
@@ -331,8 +331,9 @@ public class Robot extends TimedRobot implements Constants
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
 
         //Update Status of LED RELAY
+        LEDRELAY = LEDRELAY_ENTRY.getBoolean(false);
         if(LEDRELAY){
-            ledRelay.set(Value.kOn);
+            ledRelay.set(Value.kForward);
         } else {
             ledRelay.set(Value.kOff);
         }
