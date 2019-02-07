@@ -146,9 +146,9 @@ public class Robot extends TimedRobot implements Constants
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
          //Update Status of LED RELAY
          if(LEDRELAY){
-            ledRelay.set(Value.kOn);
+            ledRelay.set(Value.kForward);
         } else {
-            ledRelay.set(Value.kOff);
+            ledRelay.set(Value.kReverse);
         }
     }
     

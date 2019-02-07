@@ -193,7 +193,7 @@ public class VisionAlignment{
         visionThread.start(); 
  
     } public void align(Relay toggleSwitch){
-        toggleSwitch.set(Value.kOn);
+        toggleSwitch.set(Value.kForward);
         double centerX;
         synchronized (imgLock) {
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);
