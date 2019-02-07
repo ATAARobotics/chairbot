@@ -32,6 +32,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class VisionAlignment{
 
+    GripPipeline globalPipeline;
+
      // Vision Proccessing
      private static final int IMG_WIDTH = 320;
      private static final int IMG_HEIGHT = 240;
@@ -41,8 +43,6 @@ public class VisionAlignment{
 
 
      private DifferentialDrive robotDrive;
- 
-     
      //TODO use below values when driver assit code is ready to be added
      private List<Rect> rectList = new LinkedList<Rect>();
      private final Object imgLock = new Object();
@@ -99,6 +99,7 @@ public class VisionAlignment{
             visionProcessing.process(source);
 
             //If filter has nothing, send frame
+            globalPipeline = pipeline;
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
                 cvSink.grabFrame(source);
@@ -198,9 +199,7 @@ public class VisionAlignment{
         synchronized (imgLock) {
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);
         }
-        if (visionTarget[0] == null){
-            return;
-        }else {
+        if (!globalPipeline.filterContoursOutput().isEmpty()){
             double turn = 0;
             turn = centerX - (IMG_WIDTH / 2);
             System.out.println(turn);
