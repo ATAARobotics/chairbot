@@ -51,10 +51,6 @@ public class VisionAlignment{
      ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
      ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
 
-     //LED_Relay Control
-    NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).getEntry();
-    boolean LEDRELAY = LEDRELAY_ENTRY.getBoolean(true);
-    Relay ledRelay = new Relay(0);
 
       //Create Item on Shuffleboard to Adjust Camera Exposure
     NetworkTableEntry CAMERAEXPOSURE_ENTRY = dynamicSettingsTab.addPersistent("Camera Exposure", 0).getEntry();
@@ -196,8 +192,8 @@ public class VisionAlignment{
         //starts vision thread
         visionThread.start(); 
  
-    } public void align(){
-        ledRelay.set(Value.kOn);
+    } public void align(Relay toggleSwitch){
+        toggleSwitch.set(Value.kOn);
         double centerX;
         synchronized (imgLock) {
             centerX = visionTarget[0].x + (visionTarget[0].width / 2);

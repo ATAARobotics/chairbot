@@ -132,7 +132,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
-       visionCamera.align();
+        visionCamera.align(ledRelay);
     }
     
     @Override
