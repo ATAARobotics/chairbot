@@ -11,6 +11,7 @@ import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -20,6 +21,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import ca.fourthreethreefour.commands.debug.Logging;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -27,16 +29,21 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.RobotDrive;
+
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
+
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
@@ -57,8 +64,6 @@ public class Robot extends TimedRobot implements Constants
     private DifferentialDrive robotDrive;
 
     private VisionAlignment visionCamera;
-    
-   
     
     // Ultrasonic goes here
     
@@ -91,8 +96,6 @@ public class Robot extends TimedRobot implements Constants
     NetworkTableEntry RIGHT_DRIVE_MOTOR_ENTRY = portsTab.addPersistent("Right Drive Motor", 3).getEntry();
     int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
     
-   
-    
     @Override
     public void robotInit()
     {
@@ -109,8 +112,10 @@ public class Robot extends TimedRobot implements Constants
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
 
+
         //creates new vision object(in testing)
         visionCamera = new VisionAlignment(leftSideDriveMotors, rightSideDriveMotors);
+
 
         // Sets the appropriate configuration settings for the motors
         leftSideDriveMotors.setInverted(true);
@@ -132,7 +137,9 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
+
         visionCamera.align(ledRelay);
+
     }
     
     @Override
@@ -144,11 +151,11 @@ public class Robot extends TimedRobot implements Constants
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
         gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
-         //Update Status of LED RELAY
-         LEDRELAY = LEDRELAY_ENTRY.getBoolean(false);
-         if(LEDRELAY){
+        
+        //Update Status of LED RELAY
+        LEDRELAY = LEDRELAY_ENTRY.getBoolean(false);
+        if(LEDRELAY){
             ledRelay.set(Value.kForward);
-
         } else {
             ledRelay.set(Value.kOff);
 
@@ -173,6 +180,7 @@ public class Robot extends TimedRobot implements Constants
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
 
+
     private static final int visionLineUpOffThreshold = 2;
 
     /*public void autoLineUp(int targetLocation) {
@@ -185,3 +193,4 @@ public class Robot extends TimedRobot implements Constants
     }
     */
 }
+
