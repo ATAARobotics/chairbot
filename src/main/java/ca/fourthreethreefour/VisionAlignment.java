@@ -2,9 +2,7 @@ package ca.fourthreethreefour;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -18,15 +16,10 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.vision.VisionThread;
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
@@ -38,7 +31,6 @@ public class VisionAlignment{
      private static final int IMG_WIDTH = 320;
      private static final int IMG_HEIGHT = 240;
      private VisionThread visionThread;
-     private double centerX = 0.0;
      Rect[] visionTarget = new Rect[2];
 
 

@@ -7,28 +7,13 @@
 
 package ca.fourthreethreefour;
 
-import java.awt.Image;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
-import ca.fourthreethreefour.commands.debug.Logging;
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.vision.VisionThread;
-import edu.wpi.first.wpilibj.RobotDrive;
 
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
@@ -180,17 +165,5 @@ public class Robot extends TimedRobot implements Constants
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
 
-
-    private static final int visionLineUpOffThreshold = 2;
-
-    /*public void autoLineUp(int targetLocation) {
-        while(targetLocation < (IMG_WIDTH - visionLineUpOffThreshold)){
-            
-        }
-        while(targetLocation > (IMG_WIDTH + visionLineUpOffThreshold)){
-
-        }
-    }
-    */
 }
 
