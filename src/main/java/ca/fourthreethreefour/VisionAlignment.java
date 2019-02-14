@@ -30,6 +30,7 @@ public class VisionAlignment{
      // Vision Proccessing
      private static final int IMG_WIDTH = 320;
      private static final int IMG_HEIGHT = 240;
+     private static final int FOV = 60;
      private VisionThread visionThread;
      Rect[] visionTarget = new Rect[2];
 
@@ -95,8 +96,7 @@ public class VisionAlignment{
             if (!pipeline.filterContoursOutput().isEmpty()) {
                 //Grabs frame for processing
                 cvSink.grabFrame(source);
-                //TODO try catch statement is commented out. This will not be removed until tests prove it's not used
-                //try{
+
                     //Processes Image
                     visionProcessing.process(source);
 
@@ -159,12 +159,6 @@ public class VisionAlignment{
                 //Clear list
                 rectList.clear();
 
-            //} 
-            /*catch (IndexOutOfBoundsException | NullPointerException e){
-                    //failsafe
-                    System.out.println("No vision target detected " + e.getMessage());
-                    outputStream.putFrame(source);
-                }*/
             } else {
                 outputStream.putFrame(source);
                 System.out.println("No Contours Detected");
@@ -188,15 +182,28 @@ public class VisionAlignment{
     } public void align(Relay toggleSwitch){
         toggleSwitch.set(Value.kForward);
         double centerX;
+        double focalLength;
+        double angleToTarget;
         synchronized (imgLock) {
-            centerX = visionTarget[0].x + (visionTarget[0].width / 2);
+            //Calculates centerX
+            centerX = visionTarget[0].width/2;
+            //Calculates focalLength of camera
+            focalLength = IMG_WIDTH/(2*Math.tan(FOV/2));
+
         }
-        if (!globalPipeline.filterContoursOutput().isEmpty()){
-            double turn = 0;
-            turn = centerX - (IMG_WIDTH / 2);
-            System.out.println(turn);
-            robotDrive.arcadeDrive(-0.6, turn * 0.005);
+        if (!globalPipeline.filterContoursOutput().isEmpty()){ 
+            //Calculates the angle to the target
+            angleToTarget = Math.atan((centerX - 159.5) / focalLength);
+
+            /*TODO: Use encoder values to turn with the angle
+            We can use encoder.getSelectedSensorPosition and divide by 3 000 000? to get cm
+            Then we can use tell the encoder to move x cm depending on the angle
+            (This will require a lot of testing and trial/error)
+            The ideal is making angleToTarget equal to 0 
+            (Note: Above calculations are not tested and I may have misinterpreted how to do them)
+            */
+
+            
         }
-        //double turn = centerX - (IMG_WIDTH / 2)
     }
 }
