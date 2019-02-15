@@ -63,7 +63,6 @@ public class Robot extends TimedRobot implements Constants
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
 
-    private VisionAlignment visionCamera;
     
     // Ultrasonic goes here
     
@@ -71,7 +70,6 @@ public class Robot extends TimedRobot implements Constants
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
     ShuffleboardTab portsTab = Shuffleboard.getTab("Ports");
     ShuffleboardTab outputTab = Shuffleboard.getTab("Output");
-    
     NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
     
@@ -81,6 +79,9 @@ public class Robot extends TimedRobot implements Constants
     double DRIVE_COMPENSATION;
     NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kToggleSwitch).withProperties(Map.of("min", 1, "max", 10)).getEntry();
     double TURN_CURVE;
+
+    //Vision Values
+    NetworkTableEntry DRIVE_VISION_ENTRY = dynamicSettingsTab.addPersistent("Drive Value", 0).getEntry();
 
     //LED_Relay Control
     NetworkTableEntry LEDRELAY_ENTRY = dynamicSettingsTab.addPersistent("Led Relay", true).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
@@ -113,10 +114,6 @@ public class Robot extends TimedRobot implements Constants
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
 
 
-        //creates new vision object(in testing)
-        visionCamera = new VisionAlignment(leftSideDriveMotors, rightSideDriveMotors);
-
-
         // Sets the appropriate configuration settings for the motors
         leftSideDriveMotors.setInverted(true);
         rightSideDriveMotors.setInverted(true);
@@ -137,8 +134,8 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void autonomousPeriodic()
     {
-
-        visionCamera.align(ledRelay);
+        double rotation = DRIVE_VISION_ENTRY.getDouble(0);
+        robotDrive.arcadeDrive(-0.5, rotation);
 
     }
     
@@ -181,16 +178,5 @@ public class Robot extends TimedRobot implements Constants
     }
 
 
-    private static final int visionLineUpOffThreshold = 2;
-
-    /*public void autoLineUp(int targetLocation) {
-        while(targetLocation < (IMG_WIDTH - visionLineUpOffThreshold)){
-            
-        }
-        while(targetLocation > (IMG_WIDTH + visionLineUpOffThreshold)){
-
-        }
-    }
-    */
 }
 
