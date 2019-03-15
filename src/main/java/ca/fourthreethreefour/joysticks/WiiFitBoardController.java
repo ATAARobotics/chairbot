@@ -15,6 +15,12 @@ import edu.wpi.first.wpilibj.GenericHID;
  * mapping of ports to hardware buttons depends on the code in the Driver
  * Station.
  * 
+ * WARNING: Please note that there may be dangers with setting this up. I, nor my team,
+ * are responsible for anything going wrong. Note that you do require a stable bluetooth
+ * connection to make the board work, and for the correct values to be sent, and that
+ * there comes the risk of something going wrong. PLEASE ENSURE THAT IF YOU DO THIS, THERE
+ * IS ALWAYS SOMEONE AT STANDBY READY TO DISABLE THE ROBOT.
+ * 
  * How to use the Wii Fit Board:
  * 
  * Instructions are for Windows. Likely will break for anything else.
