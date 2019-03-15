@@ -12,6 +12,7 @@ import java.util.Map;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import ca.fourthreethreefour.commands.debug.Logging;
+import ca.fourthreethreefour.joysticks.WiiFitBoardController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -29,7 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 public class Robot extends TimedRobot implements Constants
 {
     // Initialize an Xbox 360 controller to control the robot
-    private XboxController controller;
+    private WiiFitBoardController controller;
 
     // Initialize the drivetrain motors
     private WPI_TalonSRX gearMotor;
@@ -42,10 +43,6 @@ public class Robot extends TimedRobot implements Constants
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
 
-    private AnalogInput lineTracker1;
-    private AnalogInput lineTracker2;
-    private AnalogInput lineTracker3;
-
     // Ultrasonic goes here
 
     
@@ -56,8 +53,10 @@ public class Robot extends TimedRobot implements Constants
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
             static public boolean LOGGING_ENABLED;
 
-        NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        NetworkTableEntry DRIVE_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Drive Speed", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
             double DRIVE_SPEED;
+        NetworkTableEntry TURN_SPEED_ENTRY = dynamicSettingsTab.addPersistent("Turn Speed", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+            double TURN_SPEED;
         NetworkTableEntry DRIVE_COMPENSATION_ENTRY = dynamicSettingsTab.addPersistent("Drive Compensation", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -0.7, "max", 0.7)).getEntry();
             double DRIVE_COMPENSATION;
         NetworkTableEntry TURN_CURVE_ENTRY = dynamicSettingsTab.addPersistent("Turn Curve", 1.5).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 1, "max", 10)).getEntry();
@@ -76,17 +75,13 @@ public class Robot extends TimedRobot implements Constants
             int RIGHT_DRIVE_MOTOR = (int) RIGHT_DRIVE_MOTOR_ENTRY.getDouble(3);
 
 
-        NetworkTableEntry LINE_TRACKER_ENTRY_1 = outputTab.add("Left Line Tracker", 0).getEntry();
-        NetworkTableEntry LINE_TRACKER_ENTRY_2 = outputTab.add("Middle Line Tracker", 0).getEntry();
-        NetworkTableEntry LINE_TRACKER_ENTRY_3 = outputTab.add("Right Line Tracker", 0).getEntry();
-
         
 
     @Override
     public void robotInit()
     {
         // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
-        controller = new XboxController(XBOXCONTROLLER);
+        controller = new WiiFitBoardController(XBOXCONTROLLER);
         
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
@@ -97,10 +92,6 @@ public class Robot extends TimedRobot implements Constants
         leftSideDriveMotors = new SpeedControllerGroup(leftDriveMotor);
         rightSideDriveMotors = new SpeedControllerGroup(rightDriveMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
-
-        lineTracker1 = new AnalogInput(0);
-        lineTracker2 = new AnalogInput(1);
-        lineTracker3 = new AnalogInput(2);
 
         // Sets the appropriate configuration settings for the motors
 
@@ -135,11 +126,8 @@ public class Robot extends TimedRobot implements Constants
         turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
-        gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
+        // gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
         Logging.log("Speed: " + speed);
-        Logging.put(LINE_TRACKER_ENTRY_1, lineTracker1.getValue());
-        Logging.put(LINE_TRACKER_ENTRY_2, lineTracker2.getValue());
-        Logging.put(LINE_TRACKER_ENTRY_3, lineTracker3.getValue());
 
         // Take .getValue() and based on if the value is greater than x or less than x
         // assign it a boolean with true being on the line, and false being off of it
@@ -160,7 +148,8 @@ public class Robot extends TimedRobot implements Constants
     public void updateSettings() {
         LOGGING_ENABLED = LOGGING_ENABLED_ENTRY.getBoolean(false);
 
-        DRIVE_SPEED = DRIVE_SPEED_ENTRY.getDouble(1);
+        DRIVE_SPEED = DRIVE_SPEED_ENTRY.getDouble(0);
+        TURN_SPEED = TURN_SPEED_ENTRY.getDouble(0);
         DRIVE_COMPENSATION = DRIVE_COMPENSATION_ENTRY.getDouble(0);
         TURN_CURVE = TURN_CURVE_ENTRY.getDouble(1.5);
     }
