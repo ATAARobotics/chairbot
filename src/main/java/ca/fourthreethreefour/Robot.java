@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 public class Robot extends TimedRobot implements Constants
 {
     // Initialize an Xbox 360 controller to control the robot
-    private WiiFitBoardController controller;
+    private XboxController controller;
 
     // Initialize the drivetrain motors
     private WPI_TalonSRX gearMotor;
@@ -81,7 +81,7 @@ public class Robot extends TimedRobot implements Constants
     public void robotInit()
     {
         // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
-        controller = new WiiFitBoardController(XBOXCONTROLLER);
+        controller = new XboxController(XBOXCONTROLLER);
         
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
@@ -121,8 +121,10 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void teleopPeriodic()
     {
-        double speed = controller.getY(GenericHID.Hand.kLeft);
+        double rightTrigger = controller.getTriggerAxis(GenericHID.Hand.kRight);
+        double leftTrigger = controller.getTriggerAxis(GenericHID.Hand.kLeft);
         double turn = controller.getX(GenericHID.Hand.kRight);
+		double speed = rightTrigger - leftTrigger;
         turn += (speed > 0) ? DRIVE_COMPENSATION : (speed < 0) ? -DRIVE_COMPENSATION : 0;
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * DRIVE_SPEED, turn >= 0 ? Math.pow(turn, TURN_CURVE) : -Math.pow(Math.abs(turn), TURN_CURVE));
