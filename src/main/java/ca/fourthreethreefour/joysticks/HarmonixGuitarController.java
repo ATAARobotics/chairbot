@@ -76,8 +76,8 @@ import edu.wpi.first.wpilibj.GenericHID;
      * @return The Z value of the controller.
      */
     public double getZ() {
-        double value = 0.5;
-        if (getRawAxis(2) != 0.5) {
+        double value = 0;
+        if (getRawAxis(2) != 0) {
             value = getRawAxis(2);
         }
         return value;
@@ -89,8 +89,8 @@ import edu.wpi.first.wpilibj.GenericHID;
      * @return The Z Rotate value of the controller.
      */
     public double getZRotate() {
-        double value = 0.5;
-        if (getRawAxis(3) != 0.5) {
+        double value = 0;
+        if (getRawAxis(3) != 0) {
             value = getRawAxis(3);
         }
         return value;

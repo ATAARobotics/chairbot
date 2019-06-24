@@ -12,6 +12,7 @@ import java.util.Map;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import ca.fourthreethreefour.commands.debug.Logging;
+import ca.fourthreethreefour.joysticks.HarmonixGuitarController;
 import ca.fourthreethreefour.joysticks.WiiFitBoardController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -24,13 +25,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
 // If you rename or move this class, update the build.properties file in the project root
 public class Robot extends TimedRobot implements Constants
 {
     // Initialize an Xbox 360 controller to control the robot
-    private WiiFitBoardController controller;
+    private HarmonixGuitarController controller = new HarmonixGuitarController(1);
 
     // Initialize the drivetrain motors
     private WPI_TalonSRX gearMotor;
@@ -81,7 +83,7 @@ public class Robot extends TimedRobot implements Constants
     public void robotInit()
     {
         // Assigns all the motors to their respective objects (the number in brackets is the port # of what is connected where)
-        controller = new WiiFitBoardController(XBOXCONTROLLER);
+        
         
         gearMotor = new WPI_TalonSRX(GEAR_MOTOR);
         leftDriveMotor = new WPI_TalonSRX(LEFT_DRIVE_MOTOR);
@@ -103,6 +105,11 @@ public class Robot extends TimedRobot implements Constants
         robotDrive.setExpiration(0.1);
         robotDrive.setMaxOutput(0.80);
         gearMotor.setSafetyEnabled(true);
+    }
+
+    @Override
+    public void robotPeriodic() {
+
     }
 
     @Override
@@ -133,6 +140,8 @@ public class Robot extends TimedRobot implements Constants
         // assign it a boolean with true being on the line, and false being off of it
         
         // If boolean is false, check 
+        SmartDashboard.putBoolean("Upper Buttons", controller.getTopBlueButton());
+        SmartDashboard.putBoolean("Lower Buttons", controller.getBottomBlueButton());
     }
 
     @Override

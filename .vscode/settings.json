@@ -10,5 +10,6 @@
     ".classpath": true,
     ".project": true
   },
-  "wpilib.online": true
+  "wpilib.online": true,
+  "java.checkstyle.configuration": "c:\\Users\\cool\\Documents\\0 TEAM4334\\Robot Code\\RIP ATALIBJ\\chair-bot\\checkstyle.xml"
 }
