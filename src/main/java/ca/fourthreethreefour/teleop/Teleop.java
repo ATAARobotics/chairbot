@@ -21,4 +21,14 @@ public class Teleop {
 
         Scheduler.getInstance().run();
     }
+
+    /**
+    * Drive function for external use
+    * @param leftValue value for left motors, ranges from 1 to -1
+    * @param rightValue value for right motors, ranges from 1 to -1
+    * @return void
+    */
+    public static void ExtDrive(double leftValue, double rightValue) {
+        drive.ExtDrive(leftValue, rightValue);
+    }
 }

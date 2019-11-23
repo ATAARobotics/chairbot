@@ -44,10 +44,12 @@ public class Robot extends TimedRobot implements Constants
 
     @Override
     public void autonomousPeriodic() {
+        auto.AutoPeriodic();
     }
 
     @Override
     public void teleopPeriodic() {
+        auto.AutoFinished();
         teleop.TeleopPeriodic();
     }
 

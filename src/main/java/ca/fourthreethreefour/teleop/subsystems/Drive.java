@@ -52,4 +52,14 @@ public class Drive extends Subsystem {
         Logging.log("Speed: " + speed);
     }
 
+    /**
+    * Drive function for external use
+    * @param leftValue value for left motors
+    * @param rightValue value right motors
+    * @return void
+    */
+    public void ExtDrive(double leftDrive, double rightDrive) {
+        robotDrive.tankDrive(leftDrive, rightDrive);
+    }
+
 }
