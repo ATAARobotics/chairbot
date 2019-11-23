@@ -8,13 +8,17 @@
 package ca.fourthreethreefour.auto.groups;
 
 import ca.fourthreethreefour.auto.commands.DriveBlind;
+import ca.fourthreethreefour.auto.commands.DriveStraight;
+import ca.fourthreethreefour.teleop.Teleop;
+import ca.fourthreethreefour.teleop.subsystems.Drive;
+import ca.fourthreethreefour.teleop.subsystems.Encoder;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 public class TestGroup extends CommandGroup {
   /**
    * Add your docs here.
    */
-  public TestGroup() {
+  public TestGroup(Drive drive, Encoder encoder) {
     // Add Commands here:
     // e.g. addSequential(new Command1());
     // addSequential(new Command2());
@@ -32,6 +36,7 @@ public class TestGroup extends CommandGroup {
     // a CommandGroup containing them would require both the chassis and the
     // arm.
 
-    addSequential(new DriveBlind(0.5,0.5,10));
+    addSequential(new DriveStraight(drive, encoder, 5420), 10);
+    // addSequential(new DriveBlind(drive, 0.6, 0.6, 10));
   }
 }

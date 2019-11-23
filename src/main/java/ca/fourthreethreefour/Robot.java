@@ -9,6 +9,8 @@ package ca.fourthreethreefour;
 
 import ca.fourthreethreefour.auto.Auto;
 import ca.fourthreethreefour.teleop.Teleop;
+import ca.fourthreethreefour.teleop.subsystems.Drive;
+import ca.fourthreethreefour.teleop.subsystems.Encoder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -19,17 +21,21 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class Robot extends TimedRobot implements Constants
 {
 
-    private Teleop teleop;
-    private Auto auto;
+    static private Drive drive;
+    static private Encoder encoder;
+    static private Teleop teleop;
+    static private Auto auto;
 
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
-	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
+	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", true).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     static public boolean LOGGING_ENABLED;
 
     @Override
     public void robotInit() {
-        teleop = new Teleop();
-        auto = new Auto();
+        drive = new Drive();
+        encoder = new Encoder(drive);
+        teleop = new Teleop(drive, encoder);
+        auto = new Auto(drive, encoder);
     }
 
     @Override
@@ -48,8 +54,13 @@ public class Robot extends TimedRobot implements Constants
     }
 
     @Override
-    public void teleopPeriodic() {
+    public void teleopInit() {
         auto.AutoFinished();
+        teleop.TeleopInit();
+    }
+
+    @Override
+    public void teleopPeriodic() {
         teleop.TeleopPeriodic();
     }
 
@@ -64,6 +75,6 @@ public class Robot extends TimedRobot implements Constants
     }
 
     public void updateSettings() {
-        LOGGING_ENABLED = LOGGING_ENABLED_ENTRY.getBoolean(false);
+        LOGGING_ENABLED = LOGGING_ENABLED_ENTRY.getBoolean(true);
     }
 }

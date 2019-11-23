@@ -12,21 +12,32 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Drive extends Subsystem {
 
-    private CANSparkMax frontLeftMotor = new CANSparkMax(3, MotorType.kBrushless);
-    private CANSparkMax rearLeftMotor = new CANSparkMax(4, MotorType.kBrushless);
-    private CANSparkMax frontRightMotor = new CANSparkMax(1, MotorType.kBrushless);
-    private CANSparkMax rearRightMotor = new CANSparkMax(2, MotorType.kBrushless);
+    public CANSparkMax frontLeftMotor;
+    public CANSparkMax rearLeftMotor;
+    public CANSparkMax frontRightMotor;
+    public CANSparkMax rearRightMotor;
 
     // Initialize the drivetrain motors
     // private WPI_TalonSRX leftDriveMotor = new WPI_TalonSRX(0);
     // private WPI_TalonSRX rightDriveMotor = new WPI_TalonSRX(1);
 
     // Pairs up the drivetrain motors based on their respective side and initializes the drivetrain controlling object
-    private SpeedControllerGroup leftSideDriveMotors = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
-    private SpeedControllerGroup rightSideDriveMotors = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
-    private DifferentialDrive robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+    private SpeedControllerGroup leftSideDriveMotors;
+    private SpeedControllerGroup rightSideDriveMotors;
+    private static DifferentialDrive robotDrive;
 
     // Sets the appropriate configuration settings for the motors
+
+    public Drive() {
+        frontLeftMotor = new CANSparkMax(3, MotorType.kBrushless);
+        rearLeftMotor = new CANSparkMax(4, MotorType.kBrushless);
+        frontRightMotor = new CANSparkMax(1, MotorType.kBrushless);
+        rearRightMotor = new CANSparkMax(2, MotorType.kBrushless);
+
+        leftSideDriveMotors = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
+        rightSideDriveMotors = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
+        robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+    }
 
     @Override
     protected void initDefaultCommand() {
@@ -49,7 +60,6 @@ public class Drive extends Subsystem {
         // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
         robotDrive.arcadeDrive(speed * 1, turn >= 0 ? Math.pow(turn, 1) : -Math.pow(Math.abs(turn), 1));
         // gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
-        Logging.log("Speed: " + speed);
     }
 
     /**
@@ -58,8 +68,12 @@ public class Drive extends Subsystem {
     * @param rightValue value right motors
     * @return void
     */
-    public void ExtDrive(double leftDrive, double rightDrive) {
+    public static void extDrive(double leftDrive, double rightDrive) {
         robotDrive.tankDrive(leftDrive, rightDrive);
+    }
+
+    public static void extArcadeDrive(double speed, double angle){
+        robotDrive.arcadeDrive(speed, angle);
     }
 
 }
