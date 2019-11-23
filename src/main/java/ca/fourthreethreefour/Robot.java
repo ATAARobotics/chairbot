@@ -7,6 +7,7 @@
 
 package ca.fourthreethreefour;
 
+import ca.fourthreethreefour.auto.Auto;
 import ca.fourthreethreefour.teleop.Teleop;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -19,6 +20,7 @@ public class Robot extends TimedRobot implements Constants
 {
 
     private Teleop teleop;
+    private Auto auto;
 
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
@@ -27,6 +29,7 @@ public class Robot extends TimedRobot implements Constants
     @Override
     public void robotInit() {
         teleop = new Teleop();
+        auto = new Auto();
     }
 
     @Override
@@ -36,6 +39,7 @@ public class Robot extends TimedRobot implements Constants
 
     @Override
     public void autonomousInit() {
+        auto.AutoInit();
     }
 
     @Override
