@@ -5,11 +5,9 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package ca.fourthreethreefour.auto;
+package ca.fourthreethreefour.auto.groups;
 
 import ca.fourthreethreefour.auto.commands.DriveBlind;
-import ca.fourthreethreefour.auto.commands.Test1;
-import ca.fourthreethreefour.auto.commands.Test2;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 public class TestGroup extends CommandGroup {
