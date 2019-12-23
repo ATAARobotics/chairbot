@@ -8,9 +8,8 @@
 package ca.fourthreethreefour;
 
 import ca.fourthreethreefour.auto.Auto;
+import ca.fourthreethreefour.subsystems.Drive;
 import ca.fourthreethreefour.teleop.Teleop;
-import ca.fourthreethreefour.teleop.subsystems.Drive;
-import ca.fourthreethreefour.teleop.subsystems.Encoder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -21,10 +20,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class Robot extends TimedRobot implements Constants
 {
 
-    static private Drive drive;
-    static private Encoder encoder;
-    static private Teleop teleop;
-    static private Auto auto;
+    private Drive drive = new Drive();
+    private Teleop teleop;
+    private Auto auto;
 
     ShuffleboardTab dynamicSettingsTab = Shuffleboard.getTab("Dynamic Settings");
 	    NetworkTableEntry LOGGING_ENABLED_ENTRY = dynamicSettingsTab.addPersistent("Logging", true).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
@@ -32,10 +30,8 @@ public class Robot extends TimedRobot implements Constants
 
     @Override
     public void robotInit() {
-        drive = new Drive();
-        encoder = new Encoder(drive);
-        teleop = new Teleop(drive, encoder);
-        auto = new Auto(drive, encoder);
+        teleop = new Teleop(drive);
+        auto = new Auto(drive);
     }
 
     @Override

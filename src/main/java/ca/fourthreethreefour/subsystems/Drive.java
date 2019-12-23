@@ -1,11 +1,10 @@
-package ca.fourthreethreefour.teleop.subsystems;
+package ca.fourthreethreefour.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import ca.fourthreethreefour.commands.debug.Logging;
-import edu.wpi.first.wpilibj.GenericHID;
+import ca.fourthreethreefour.wrapper.CANEncoderWrapper;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -24,8 +23,12 @@ public class Drive extends Subsystem {
     // Pairs up the drivetrain motors based on their respective side and initializes the drivetrain controlling object
     private SpeedControllerGroup leftSideDriveMotors;
     private SpeedControllerGroup rightSideDriveMotors;
-    private static DifferentialDrive robotDrive;
+    private DifferentialDrive robotDrive;
 
+    private CANEncoderWrapper frontLeftEncoder;
+    private CANEncoderWrapper rearLeftEncoder;
+    private CANEncoderWrapper frontRightEncoder;
+    private CANEncoderWrapper rearRightEncoder;
     // Sets the appropriate configuration settings for the motors
 
     public Drive() {
@@ -37,11 +40,17 @@ public class Drive extends Subsystem {
         leftSideDriveMotors = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
         rightSideDriveMotors = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
+
+        frontLeftEncoder = new CANEncoderWrapper(frontLeftMotor);
+        rearLeftEncoder = new CANEncoderWrapper(rearLeftMotor);
+        frontRightEncoder = new CANEncoderWrapper(frontRightMotor);
+        rearRightEncoder = new CANEncoderWrapper(rearRightMotor);
     }
 
     @Override
     protected void initDefaultCommand() {
     }
+
     public void driveInit() {
         
         leftSideDriveMotors.setInverted(true);
@@ -52,28 +61,42 @@ public class Drive extends Subsystem {
 
     }
 
-    public void drive(GenericHID controller) {
-
-        double speed = controller.getY(GenericHID.Hand.kLeft);
-        double turn = -controller.getX(GenericHID.Hand.kRight);
-        turn += (speed > 0) ? 0 : (speed < 0) ? -0 : 0;
-        // Sends the Y axis input from the left stick (speed) and the X axis input from the right stick (rotation) from the primary controller to move the robot
-        robotDrive.arcadeDrive(speed * 1, turn >= 0 ? Math.pow(turn, 1) : -Math.pow(Math.abs(turn), 1));
-        // gearMotor.set(-controller.getTriggerAxis(GenericHID.Hand.kRight));
-    }
-
     /**
     * Drive function for external use
     * @param leftValue value for left motors
     * @param rightValue value right motors
     * @return void
     */
-    public static void extDrive(double leftDrive, double rightDrive) {
+    public void tankDrive(double leftDrive, double rightDrive) {
         robotDrive.tankDrive(leftDrive, rightDrive);
     }
 
-    public static void extArcadeDrive(double speed, double angle){
-        robotDrive.arcadeDrive(speed, angle);
+    public void arcadeDrive(double speed, double angle, boolean square){ 
+        robotDrive.arcadeDrive(speed, angle, square);
+    }
+
+    public void encoderReset() {
+        frontLeftEncoder.reset();
+        rearLeftEncoder.reset();
+        frontRightEncoder.reset();
+        rearRightEncoder.reset();
+        System.out.println("Hit");
+    }
+
+    public void encoderPrint() {
+        Logging.logf("Average: %.2f Left encoder: %.2f Right encoder: %.2f", getAverage(), getLeftEncoder(), getRightEncoder());
+    }
+
+    public double getLeftEncoder() {
+        return (frontLeftEncoder.get() * rearLeftEncoder.get()) / 2;
+    }
+
+    public double getRightEncoder() {
+        return (frontRightEncoder.get() * rearRightEncoder.get()) / 2;
+    }
+
+    public double getAverage() {
+        return (getRightEncoder() + getLeftEncoder()) / 2;
     }
 
 }

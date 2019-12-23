@@ -7,16 +7,13 @@
 
 package ca.fourthreethreefour.auto.commands;
 
-import ca.fourthreethreefour.teleop.Teleop;
-import ca.fourthreethreefour.teleop.subsystems.Drive;
-import ca.fourthreethreefour.teleop.subsystems.Encoder;
+import ca.fourthreethreefour.subsystems.Drive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
 public class DriveStraight extends Command {
 
   double distance;
-  Encoder encoder;
   boolean isEnabled;
   Drive drive;
   private PIDSubsystem distancePID;
@@ -28,10 +25,9 @@ public class DriveStraight extends Command {
     // eg. requires(chassis);
   }
 
-  public DriveStraight(Drive drive, Encoder encoder, double distance) {
+  public DriveStraight(Drive drive, double distance) {
     this.drive = drive;
     this.distance = distance;
-    this.encoder = encoder;
 
     distancePID = new PIDSubsystem(0.003, 0, 0.017) {
     
@@ -47,7 +43,7 @@ public class DriveStraight extends Command {
     
       @Override
       protected double returnPIDInput() {
-        return Encoder.getAverage();
+        return drive.getAverage();
         // return 0;
       }
   
@@ -75,7 +71,7 @@ public class DriveStraight extends Command {
     System.out.println("hit");
     distancePID.setOutputRange(-0.5,0.5);
     distancePID.setAbsoluteTolerance(30);
-    Encoder.reset();
+    drive.encoderReset();
 
     distancePID.setSetpoint(distance);
     distancePID.enable();
@@ -85,8 +81,8 @@ public class DriveStraight extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Drive.extArcadeDrive(speed, 0);
-    Encoder.print();
+    drive.arcadeDrive(speed, 0, false);
+    drive.encoderPrint();
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -99,7 +95,7 @@ public class DriveStraight extends Command {
   @Override
   protected void end() {
     distancePID.disable();
-    Drive.extArcadeDrive(0, 0);
+    drive.arcadeDrive(0, 0, false);
   }
 
   // Called when another command which requires one or more of the same

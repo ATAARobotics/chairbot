@@ -1,22 +1,19 @@
 package ca.fourthreethreefour.auto;
 
 import ca.fourthreethreefour.auto.groups.TestGroup;
-import ca.fourthreethreefour.teleop.subsystems.Drive;
-import ca.fourthreethreefour.teleop.subsystems.Encoder;
+import ca.fourthreethreefour.subsystems.Drive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class Auto {
 
-    private Encoder encoder;
     private Drive drive;
 
-    public Auto(Drive drive, Encoder encoder) {
-        this.encoder = encoder;
+    public Auto(Drive drive) {
         this.drive = drive;
     }
 
-    Command testCommand = new TestGroup(drive, encoder);
+    Command testCommand = new TestGroup(drive);
 
     public void AutoInit() {
         testCommand.start();
