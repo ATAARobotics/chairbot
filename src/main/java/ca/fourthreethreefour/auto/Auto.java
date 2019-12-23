@@ -7,13 +7,11 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class Auto {
 
-    private Drive drive;
+    private Command testCommand;
 
     public Auto(Drive drive) {
-        this.drive = drive;
+        testCommand = new TestGroup(drive);
     }
-
-    Command testCommand = new TestGroup(drive);
 
     public void AutoInit() {
         testCommand.start();
