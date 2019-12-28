@@ -22,8 +22,8 @@ public class Teleop {
     }
 
     public void TeleopPeriodic() {
-        double speed = controller.getY(Hand.kLeft);
-        double turn = -controller.getX(Hand.kRight);
+        double speed = -controller.getY(Hand.kLeft);
+        double turn = controller.getX(Hand.kRight);
         turn += (speed > 0) ? 0 : (speed < 0) ? -0 : 0;
         drive.arcadeDrive(speed, turn, true);
 

@@ -7,7 +7,9 @@
 
 package ca.fourthreethreefour.auto.groups;
 
+import ca.fourthreethreefour.auto.commands.DriveBlind;
 import ca.fourthreethreefour.auto.commands.DriveStraight;
+import ca.fourthreethreefour.auto.commands.Print;
 import ca.fourthreethreefour.subsystems.Drive;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
@@ -33,7 +35,7 @@ public class TestGroup extends CommandGroup {
     // a CommandGroup containing them would require both the chassis and the
     // arm.
 
-    addSequential(new DriveStraight(drive, 5420), 10);
-    // addSequential(new DriveBlind(drive, 0.6, 0.6, 10));
+    addSequential(new DriveStraight(drive, 10000), 10);
+    // addSequential(new DriveBlind(drive, 1, 1, 5));
   }
 }

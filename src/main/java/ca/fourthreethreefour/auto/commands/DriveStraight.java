@@ -68,10 +68,9 @@ public class DriveStraight extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    System.out.println("hit");
-    distancePID.setOutputRange(-0.5,0.5);
-    distancePID.setAbsoluteTolerance(30);
     drive.encoderReset();
+    distancePID.setOutputRange(-1,1);
+    distancePID.setAbsoluteTolerance(30);
 
     distancePID.setSetpoint(distance);
     distancePID.enable();
@@ -81,6 +80,7 @@ public class DriveStraight extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
+    System.out.println(speed);
     drive.arcadeDrive(speed, 0, false);
     drive.encoderPrint();
   }
@@ -96,6 +96,7 @@ public class DriveStraight extends Command {
   protected void end() {
     distancePID.disable();
     drive.arcadeDrive(0, 0, false);
+    drive.encoderReset();
   }
 
   // Called when another command which requires one or more of the same

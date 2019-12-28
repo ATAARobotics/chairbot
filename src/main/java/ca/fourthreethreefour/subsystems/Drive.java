@@ -1,20 +1,25 @@
 package ca.fourthreethreefour.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import ca.fourthreethreefour.commands.debug.Logging;
 import ca.fourthreethreefour.wrapper.CANEncoderWrapper;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Drive extends Subsystem {
 
-    public CANSparkMax frontLeftMotor;
-    public CANSparkMax rearLeftMotor;
-    public CANSparkMax frontRightMotor;
-    public CANSparkMax rearRightMotor;
+    public WPI_VictorSPX frontLeftMotor;
+    public WPI_VictorSPX rearLeftMotor;
+    public WPI_VictorSPX frontRightMotor;
+    public WPI_VictorSPX rearRightMotor;
 
     // Initialize the drivetrain motors
     // private WPI_TalonSRX leftDriveMotor = new WPI_TalonSRX(0);
@@ -25,26 +30,34 @@ public class Drive extends Subsystem {
     private SpeedControllerGroup rightSideDriveMotors;
     private DifferentialDrive robotDrive;
 
-    private CANEncoderWrapper frontLeftEncoder;
-    private CANEncoderWrapper rearLeftEncoder;
-    private CANEncoderWrapper frontRightEncoder;
-    private CANEncoderWrapper rearRightEncoder;
+    // private CANEncoderWrapper frontLeftEncoder;
+    // private CANEncoderWrapper rearLeftEncoder;
+    // private CANEncoderWrapper frontRightEncoder;
+    // private CANEncoderWrapper rearRightEncoder;
+    private Encoder leftEncoder;
+    private Encoder rightEncoder;
     // Sets the appropriate configuration settings for the motors
 
     public Drive() {
-        frontLeftMotor = new CANSparkMax(3, MotorType.kBrushless);
-        rearLeftMotor = new CANSparkMax(4, MotorType.kBrushless);
-        frontRightMotor = new CANSparkMax(1, MotorType.kBrushless);
-        rearRightMotor = new CANSparkMax(2, MotorType.kBrushless);
+        frontLeftMotor = new WPI_VictorSPX(0);
+        rearLeftMotor = new WPI_VictorSPX(1);
+        frontRightMotor = new WPI_VictorSPX(2);
+        rearRightMotor = new WPI_VictorSPX(3);
 
         leftSideDriveMotors = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
         rightSideDriveMotors = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
         robotDrive = new DifferentialDrive(leftSideDriveMotors, rightSideDriveMotors);
 
-        frontLeftEncoder = new CANEncoderWrapper(frontLeftMotor);
-        rearLeftEncoder = new CANEncoderWrapper(rearLeftMotor);
-        frontRightEncoder = new CANEncoderWrapper(frontRightMotor);
-        rearRightEncoder = new CANEncoderWrapper(rearRightMotor);
+        leftEncoder = new Encoder(0,1);
+        rightEncoder = new Encoder(2,3);
+
+        leftSideDriveMotors.setInverted(true);
+        rightSideDriveMotors.setInverted(true);
+
+        // frontLeftEncoder = new CANEncoderWrapper(frontLeftMotor);
+        // rearLeftEncoder = new CANEncoderWrapper(rearLeftMotor);
+        // frontRightEncoder = new CANEncoderWrapper(frontRightMotor);
+        // rearRightEncoder = new CANEncoderWrapper(rearRightMotor);
     }
 
     @Override
@@ -52,12 +65,11 @@ public class Drive extends Subsystem {
     }
 
     public void driveInit() {
-        
-        leftSideDriveMotors.setInverted(true);
-        rightSideDriveMotors.setInverted(true);
         robotDrive.setSafetyEnabled(true);
         robotDrive.setExpiration(0.1);
         robotDrive.setMaxOutput(0.80);
+        // leftEncoder.setDistancePerPulse(90);
+        // rightEncoder.setDistancePerPulse(90);
 
     }
 
@@ -72,15 +84,17 @@ public class Drive extends Subsystem {
     }
 
     public void arcadeDrive(double speed, double angle, boolean square){ 
+        System.out.println("Speed " + speed);
         robotDrive.arcadeDrive(speed, angle, square);
     }
 
     public void encoderReset() {
-        frontLeftEncoder.reset();
-        rearLeftEncoder.reset();
-        frontRightEncoder.reset();
-        rearRightEncoder.reset();
-        System.out.println("Hit");
+        // frontLeftEncoder.reset();
+        // rearLeftEncoder.reset();
+        // frontRightEncoder.reset();
+        // rearRightEncoder.reset();
+        leftEncoder.reset();
+        rightEncoder.reset();
     }
 
     public void encoderPrint() {
@@ -88,15 +102,18 @@ public class Drive extends Subsystem {
     }
 
     public double getLeftEncoder() {
-        return (frontLeftEncoder.get() * rearLeftEncoder.get()) / 2;
+        // return (frontLeftEncoder.get() * rearLeftEncoder.get()) / 2;
+        return leftEncoder.getDistance();
     }
 
     public double getRightEncoder() {
-        return (frontRightEncoder.get() * rearRightEncoder.get()) / 2;
+        // return (frontRightEncoder.get() * rearRightEncoder.get()) / 2;
+        return rightEncoder.getDistance();
     }
 
     public double getAverage() {
-        return (getRightEncoder() + getLeftEncoder()) / 2;
+        // return (getRightEncoder() + getLeftEncoder()) / 2;
+        return getLeftEncoder();
     }
 
 }
