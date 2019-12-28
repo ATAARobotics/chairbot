@@ -16,8 +16,8 @@ public class DriveStraight extends Command {
   double distance;
   boolean isEnabled;
   Drive drive;
-  private PIDSubsystem distancePID;
-  double speed;
+  private PIDSubsystem distancePID, turnPID;
+  double speed, turn;
   
 
   public DriveStraight() {
@@ -63,6 +63,41 @@ public class DriveStraight extends Command {
         isEnabled = false;
       }
     };
+
+    turnPID = new PIDSubsystem(-0.0195, -0.0, -0.06) {
+    
+      @Override
+      protected void initDefaultCommand() {
+        
+      }
+    
+      @Override
+      protected void usePIDOutput(double output) {
+        turn = output;
+      }
+    
+      @Override
+      protected double returnPIDInput() {
+        return drive.getNavX();
+        // return 0;
+      }
+  
+      @Override
+      public void enable() {
+        //Enabled PID
+        super.enable();
+        //Set enabled variable to true
+        isEnabled = true;
+      }
+  
+      @Override
+      public void disable() {
+        //Disable PID
+        super.disable();
+        //Set enabled variable to false
+        isEnabled = false;
+      }
+    };
   }
 
   // Called just before this Command runs the first time
@@ -72,8 +107,14 @@ public class DriveStraight extends Command {
     distancePID.setOutputRange(-1,1);
     distancePID.setAbsoluteTolerance(30);
 
+    turnPID.setOutputRange(-1, 1);
+    // turnPID.setAbsoluteTolerance(2);
+
     distancePID.setSetpoint(distance);
+    turnPID.setSetpoint(drive.getNavX());
+
     distancePID.enable();
+    turnPID.enable();
     
   }
 

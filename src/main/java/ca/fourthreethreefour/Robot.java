@@ -17,8 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 // If you rename or move this class, update the build.properties file in the project root
-public class Robot extends TimedRobot
-{
+public class Robot extends TimedRobot {
 
     private Drive drive = new Drive();
     private Teleop teleop;

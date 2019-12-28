@@ -3,13 +3,16 @@ package ca.fourthreethreefour.subsystems;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import ca.fourthreethreefour.commands.debug.Logging;
 import ca.fourthreethreefour.wrapper.CANEncoderWrapper;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -38,6 +41,8 @@ public class Drive extends Subsystem {
     private Encoder rightEncoder;
     // Sets the appropriate configuration settings for the motors
 
+    private AHRS navX;
+
     public Drive() {
         frontLeftMotor = new WPI_VictorSPX(0);
         rearLeftMotor = new WPI_VictorSPX(1);
@@ -58,6 +63,12 @@ public class Drive extends Subsystem {
         // rearLeftEncoder = new CANEncoderWrapper(rearLeftMotor);
         // frontRightEncoder = new CANEncoderWrapper(frontRightMotor);
         // rearRightEncoder = new CANEncoderWrapper(rearRightMotor);
+
+        try {
+            navX = new AHRS(SPI.Port.kMXP);
+        } catch (Exception e) {
+            DriverStation.reportError("Error instantiating navX MXP:  " + e.getMessage(), true);
+        }
     }
 
     @Override
@@ -95,6 +106,7 @@ public class Drive extends Subsystem {
         // rearRightEncoder.reset();
         leftEncoder.reset();
         rightEncoder.reset();
+        navX.reset();
     }
 
     public void encoderPrint() {
@@ -114,6 +126,10 @@ public class Drive extends Subsystem {
     public double getAverage() {
         // return (getRightEncoder() + getLeftEncoder()) / 2;
         return getLeftEncoder();
+    }
+
+    public double getNavX() {
+        return navX.getAngle();
     }
 
 }
