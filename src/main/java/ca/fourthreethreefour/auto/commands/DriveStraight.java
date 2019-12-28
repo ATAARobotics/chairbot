@@ -132,10 +132,7 @@ public class DriveStraight extends Command {
 
   // Called once after isFinished returns true
   @Override
-  protected void end() {
-    distancePID.disable();
-    drive.arcadeDrive(0, 0, false);
-    drive.encoderReset();
+  protected void end() { 
   }
 
   // Called when another command which requires one or more of the same

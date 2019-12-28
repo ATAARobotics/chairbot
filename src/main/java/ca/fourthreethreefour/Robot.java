@@ -7,11 +7,17 @@
 
 package ca.fourthreethreefour;
 
+import java.io.File;
+
 import ca.fourthreethreefour.auto.Auto;
+import ca.fourthreethreefour.auto.AutoFile;
+import ca.fourthreethreefour.auto.commands.DriveBlind;
+import ca.fourthreethreefour.auto.commands.Print;
 import ca.fourthreethreefour.subsystems.Drive;
 import ca.fourthreethreefour.teleop.Teleop;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -63,10 +69,13 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         updateSettings();
     }
+    
+    @Override
+    public void testInit() {
+    }
 
     @Override
     public void testPeriodic() {
-
     }
 
     public void updateSettings() {
