@@ -110,7 +110,7 @@ public class Drive extends Subsystem {
     }
 
     public void encoderPrint() {
-        Logging.logf("Average: %.2f Left encoder: %.2f Right encoder: %.2f", getAverage(), getLeftEncoder(), getRightEncoder());
+        Logging.logf("Average: %.2f Left encoder: %.2f Right encoder: %.2f NavX Angle: %.2f", getAverage(), getLeftEncoder(), getRightEncoder(), getNavX());
     }
 
     public double getLeftEncoder() {

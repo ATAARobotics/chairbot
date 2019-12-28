@@ -11,57 +11,22 @@ import ca.fourthreethreefour.subsystems.Drive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
-public class DriveStraight extends Command {
+public class Turn extends Command {
 
-  double distance;
+  double angle;
   boolean isEnabled;
   Drive drive;
-  private PIDSubsystem distancePID, turnPID;
-  double speed, turn;
-  
-  public DriveStraight() {
+  private PIDSubsystem turnPID;
+  double turn;
+
+  public Turn() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
   }
 
-  public DriveStraight(Drive drive, double distance) {
+  public Turn(Drive drive, double angle) {
     this.drive = drive;
-    this.distance = distance;
-
-    distancePID = new PIDSubsystem(0.003, 0, 0.017) {
-    
-      @Override
-      protected void initDefaultCommand() {
-        
-      }
-    
-      @Override
-      protected void usePIDOutput(double output) {
-        speed = output;
-      }
-    
-      @Override
-      protected double returnPIDInput() {
-        return drive.getAverage();
-        // return 0;
-      }
-  
-      @Override
-      public void enable() {
-        //Enabled PID
-        super.enable();
-        //Set enabled variable to true
-        isEnabled = true;
-      }
-  
-      @Override
-      public void disable() {
-        //Disable PID
-        super.disable();
-        //Set enabled variable to false
-        isEnabled = false;
-      }
-    };
+    this.angle = angle;
 
     turnPID = new PIDSubsystem(-0.0195, -0.0, -0.06) {
     
@@ -103,37 +68,31 @@ public class DriveStraight extends Command {
   @Override
   protected void initialize() {
     drive.encoderReset();
-    distancePID.setOutputRange(-1,1);
-    distancePID.setAbsoluteTolerance(30);
-
+    
     turnPID.setOutputRange(-1, 1);
     // turnPID.setAbsoluteTolerance(2);
 
-    distancePID.setSetpoint(distance);
-    turnPID.setSetpoint(drive.getNavX());
-
-    distancePID.enable();
+    turnPID.setSetpoint(angle);
     turnPID.enable();
-    
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    drive.arcadeDrive(speed, turn, false);
+    drive.arcadeDrive(0, turn, false);
     drive.encoderPrint();
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return distancePID.onTarget();
+    return turnPID.onTarget();
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    distancePID.disable();
+    turnPID.disable();
     drive.arcadeDrive(0, 0, false);
     drive.encoderReset();
   }
@@ -142,6 +101,6 @@ public class DriveStraight extends Command {
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
-    distancePID.disable();
+    turnPID.disable();
   }
 }
