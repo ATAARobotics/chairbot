@@ -10,28 +10,24 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class Auto {
 
-    private AutoFile test;
-    private Command test2;
+    private AutoFile autoFile;
     private Drive drive;
 
     public Auto(Drive drive) {
         this.drive = drive;
-        test2 = new Print("HITHIHTHTHITHTIHTIT");
     }
 
     public void AutoInit() {
         try {
-            test = new AutoFile(new File("/auto.txt"), drive);
+            autoFile = new AutoFile(new File("/auto.txt"), drive);
         } catch (Exception e) {
             System.out.println(e);
         }
-        // test.run();
-        test2.start();
+        autoFile.run();
     }
 
     public void AutoPeriodic() {
         Scheduler.getInstance().run();
-        System.out.println(test2.isCompleted());
     }
 
     public void AutoFinished() {
