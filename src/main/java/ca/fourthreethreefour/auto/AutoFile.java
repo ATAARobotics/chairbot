@@ -72,7 +72,7 @@ public class AutoFile {
 
         int j = 0;
         for (int i = 0; i < queue.size(); i++) {
-            if (hasRun.get(i)) {
+            if (!hasRun.get(i)) {
                 queue.get(i).start();
                 hasRun.set(i, true);
             }
