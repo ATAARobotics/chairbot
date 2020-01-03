@@ -7,14 +7,21 @@ import java.io.IOException;
 import java.util.Vector;
 
 import ca.fourthreethreefour.auto.commands.DriveBlind;
+import ca.fourthreethreefour.auto.commands.DriveStraight;
 import ca.fourthreethreefour.auto.commands.Print;
+import ca.fourthreethreefour.auto.commands.Turn;
 import ca.fourthreethreefour.subsystems.Drive;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class AutoFile {
     Drive drive;
 
-    private static Vector<String[]> commandArgs = new Vector<>();
+    Vector<Command> queue = new Vector<>();
+    Vector<Boolean> hasRun = new Vector<>();
+    Vector<Integer> state = new Vector<>();
+
+    boolean firstRun;
 
     public static class Entry {
         final String e_key;
@@ -57,47 +64,58 @@ public class AutoFile {
         }
     }
 
-    public void run() {
-
-        Vector<Command> queue = new Vector<>();
-        Vector<Boolean> hasRun = new Vector<>();
-        Vector<Integer> state = new Vector<>();
-
+    public void init() {
+        firstRun = true;
         for (int i = 0; i < commandsParents.size(); i++) {
             Entry entry = commandsParents.elementAt(i);
             queue.addElement(selectCommand(entry.e_key, entry.e_arguments));
             hasRun.addElement(false);
             state.addElement(entry.e_state);
         }
+    }
 
+    public void run() {
         int j = 0;
-        for (int i = 0; i < queue.size(); i++) {
-            if (!hasRun.get(i)) {
-                queue.get(i).start();
-                hasRun.set(i, true);
-            }
-            if (state.get(i) == Entry.SEQUENTIAL) {
-                while (j <= i) {
-                    if (queue.get(j).isCompleted()) {
-                        j++;
+        if (firstRun) {
+            firstRun = false;
+            for (int i = 0; i < queue.size(); i++) {
+                if (!hasRun.get(i)) {
+                    queue.get(i).start();
+                    hasRun.set(i, true);
+                }
+                if (state.get(i) == Entry.SEQUENTIAL) {
+                    while (j <= i) {
+                        Scheduler.getInstance().run();
+                        if (queue.get(j).isCompleted()) {
+                            j++;
+                        }
                     }
                 }
             }
         }
+        Scheduler.getInstance().run();
     }
 
     public Command selectCommand(String key, String[] args) {
         Command command;
         switch (key) {
             case "print":
-                String str = commandArgs.get(0)[0];
+                String str = args[0];
                 command = new Print(str);
                 return command;
             case "driveblind":
-                double left = Double.parseDouble(commandArgs.get(0)[0]);
-                double right = Double.parseDouble(commandArgs.get(0)[1]);
-                double timeout = Double.parseDouble(commandArgs.get(0)[2]);
+                double left = Double.parseDouble(args[0]);
+                double right = Double.parseDouble(args[1]);
+                double timeout = Double.parseDouble(args[2]);
                 command = new DriveBlind(drive, left, right, timeout);
+                return command;
+            case "drivestraight":
+                double distance = Double.parseDouble(args[0]);
+                command = new DriveStraight(drive, distance);
+                return command;
+            case "turn":
+                double angle = Double.parseDouble(args[0]);
+                command = new Turn(drive, angle);
                 return command;
             default:
                 throw new Error(key + " is not a valid command!");

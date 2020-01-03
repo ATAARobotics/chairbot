@@ -28,7 +28,7 @@ public class Turn extends Command {
     this.drive = drive;
     this.angle = angle;
 
-    turnPID = new PIDSubsystem(-0.0195, -0.0, -0.06) {
+    turnPID = new PIDSubsystem(0.0195, 0.0, 0.06) {
     
       @Override
       protected void initDefaultCommand() {
@@ -70,7 +70,7 @@ public class Turn extends Command {
     drive.encoderReset();
     
     turnPID.setOutputRange(-1, 1);
-    // turnPID.setAbsoluteTolerance(2);
+    turnPID.setAbsoluteTolerance(2);
 
     turnPID.setSetpoint(angle);
     turnPID.enable();

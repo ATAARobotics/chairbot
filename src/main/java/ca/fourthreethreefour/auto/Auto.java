@@ -21,13 +21,13 @@ public class Auto {
         try {
             autoFile = new AutoFile(new File("/auto.txt"), drive);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("No valid text file detected.");
         }
-        autoFile.run();
+        autoFile.init();
     }
 
     public void AutoPeriodic() {
-        Scheduler.getInstance().run();
+        autoFile.run();
     }
 
     public void AutoFinished() {

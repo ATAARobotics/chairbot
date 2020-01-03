@@ -16,6 +16,9 @@ import ca.fourthreethreefour.auto.commands.Print;
 import ca.fourthreethreefour.subsystems.Drive;
 import ca.fourthreethreefour.teleop.Teleop;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -41,7 +44,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-
+        RobotController.getBatteryVoltage();
     }
 
     @Override
